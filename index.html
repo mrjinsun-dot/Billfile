@@ -132,10 +132,9 @@
       <button onclick="document.getElementById('billForm').style.display='none'" style="border:none; background:none; font-size:16px;">✕</button>
     </div>
 
-    <!-- सप्लायर का नाम मुख्य फ़ील्ड -->
     <div class="form-group">
       <label style="color:var(--primary); font-weight:700;">🏢 सप्लायर का नाम (विक्रेता / फर्म) *</label>
-      <input type="text" id="bSupplier" placeholder="जैसे: सूरत सिल्क मिल्स, सप्लायर का नाम">
+      <input type="text" id="bSupplier" placeholder="सप्लायर का नाम">
     </div>
 
     <div style="display:flex; gap:8px;" class="form-group">
@@ -178,16 +177,19 @@
     <button class="btn-act btn-camera" style="width:100%; margin-top:6px;" onclick="saveBill()">✓ बिल खाते में जोड़ें</button>
   </div>
 
-  <!-- पेमेंट फॉर्म -->
+  <!-- पेमेंट फॉर्म (Dropdown / Auto-suggest के साथ) -->
   <div class="form-box" id="payForm">
     <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
       <h3 style="font-size:15px;">💰 सप्लायर को भुगतान दर्ज करें</h3>
       <button onclick="document.getElementById('payForm').style.display='none'" style="border:none; background:none; font-size:16px;">✕</button>
     </div>
+    
     <div class="form-group">
-      <label>सप्लायर का नाम *</label>
-      <input type="text" id="pParty" placeholder="सप्लायर का नाम">
+      <label>सप्लायर का नाम * (लिस्ट से चुनें या लिखें)</label>
+      <input type="text" id="pParty" list="supplierOptions" placeholder="सप्लायर चुनें...">
+      <datalist id="supplierOptions"></datalist>
     </div>
+
     <div class="form-group">
       <label>भुगतान रकम (₹) *</label>
       <input type="number" id="pAmt" placeholder="0.00" style="font-weight:800; font-size:16px;">
@@ -428,6 +430,14 @@ Return STRICT JSON ONLY:
     }
 
     function showPayForm() {
+      // Bill list se unique suppliers nikal kar datalist me bharna
+      const uniqueSuppliers = [...new Set(bills.map(b => b.supplier).filter(Boolean))];
+      const dl = document.getElementById('supplierOptions');
+      if (dl) {
+        dl.innerHTML = uniqueSuppliers.map(name => `<option value="${name}">`).join('');
+      }
+      document.getElementById('pParty').value = '';
+      document.getElementById('pAmt').value = '';
       document.getElementById('payForm').style.display = 'block';
     }
 
