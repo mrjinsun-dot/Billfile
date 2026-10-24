@@ -1,585 +1,738 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>वस्त्रमित्र - Smart Business Ledger</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <style>
-    :root {
-      --primary: #4f46e5;
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --success: #16a34a;
-      --danger: #dc2626;
-      --border: #e2e8f0;
-      --badge-unpaid: #fee2e2;
-      --badge-text: #b91c1c;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 95px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Billing & Textile ERP - Version 2</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-accent: #2563eb;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #cbd5e1;
+            --success: #15803d;
+            --danger: #b91c1c;
+        }
 
-    header { background: #1e1b4b; color: white; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-    header h1 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-    .btn-key { background: #312e81; color: #e0e7ff; border: 1px solid #4338ca; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
 
-    /* MyBillBook Style Dashboard Cards */
-    .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
-    .stat-card { background: var(--card); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .stat-card small { font-size: 11px; color: var(--muted); font-weight: 600; }
-    .stat-card h3 { font-size: 19px; margin-top: 4px; font-weight: 800; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 16px;
+        }
 
-    /* Actions */
-    .scan-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 12px 10px; }
-    .btn-act { padding: 11px 8px; border-radius: 10px; border: none; font-size: 12px; font-weight: 700; color: white; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
-    .btn-camera { background: var(--primary); }
-    .btn-gallery { background: #334155; }
-    .btn-pdf { background: #d97706; }
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
 
-    /* AI Loader */
-    #aiLoader { display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: 16px; margin: 0 12px 14px; text-align: center; }
-    .spin { width: 24px; height: 24px; border: 3px solid #c7d2fe; border-top-color: var(--primary); border-radius: 50%; animation: sp 0.8s linear infinite; margin: 0 auto 8px; }
-    @keyframes sp { to { transform: rotate(360deg); } }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--primary-accent);
+        }
 
-    /* Forms */
-    .form-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin: 0 12px 14px; display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
-    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: white; }
+        .header h1 {
+            font-size: 20px;
+            color: var(--primary);
+        }
 
-    .item-tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
-    .item-tbl th { background: #f8fafc; padding: 6px; text-align: left; color: var(--muted); border-bottom: 1px solid var(--border); }
-    .item-tbl td { padding: 4px; border-bottom: 1px solid var(--border); }
-    .item-tbl input { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
 
-    /* Tabs */
-    .tabs { display: flex; background: white; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-    .tab { flex: 1; padding: 13px; text-align: center; font-size: 13px; font-weight: 700; color: var(--muted); border: none; background: none; border-bottom: 3px solid transparent; }
-    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-    /* Transaction Row Cards (MyBillBook Clone) */
-    .card-list { padding: 0 12px; }
-    .txn-card { background: var(--card); padding: 14px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-    .txn-head { display: flex; justify-content: space-between; align-items: flex-start; }
-    .txn-head h4 { font-size: 14px; font-weight: 700; color: #1e293b; max-width: 65%; word-break: break-word; }
-    .txn-amt { text-align: right; }
-    .txn-amt h3 { font-size: 15px; font-weight: 800; }
-    .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-top: 3px; }
-    .badge-unpaid { background: var(--badge-unpaid); color: var(--badge-text); }
-    .badge-paid { background: #dcfce7; color: #15803d; }
-    .txn-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-    
-    /* Record Payment Out Button */
-    .btn-rec-pay { display: inline-flex; align-items: center; gap: 4px; color: var(--primary); background: #eef2ff; border: 1px solid #c7d2fe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 10px; cursor: pointer; }
-  </style>
+        .tab-btn.active {
+            background: var(--primary-accent);
+            color: #ffffff;
+            border-color: var(--primary-accent);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .section-subhead {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 6px;
+        }
+
+        .form-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group input, 
+        .form-group select {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus {
+            border-color: var(--primary-accent);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .than-input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #f8fafc;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .than-row {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .than-row input {
+            padding: 4px 6px;
+            font-size: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .btn {
+            background: var(--primary-accent);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .btn-outline {
+            background: #ffffff;
+            border: 1px solid var(--primary-accent);
+            color: var(--primary-accent);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #ffffff;
+            border: none;
+        }
+
+        .bill-calc-summary {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            margin-top: 14px;
+        }
+
+        .summary-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .summary-line.total {
+            font-weight: 700;
+            font-size: 15px;
+            border-top: 1px solid #cbd5e1;
+            margin-top: 6px;
+            padding-top: 6px;
+            color: var(--primary);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 10px;
+            max-width: 520px;
+            width: 90%;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
 
-  <header>
-    <div>
-      <h1>⚡ वस्त्रमित्र AI (MyBillBook Mode)</h1>
-      <small style="opacity:0.8; font-size:10px;">Purchase & Ledger Automation</small>
-    </div>
-    <button class="btn-key" onclick="setApiKey()">🔑 AI Key</button>
-  </header>
-
-  <!-- Dashboard Overview -->
-  <div class="dashboard">
-    <div class="stat-card">
-      <small>कुल खरीद (₹ To Pay)</small>
-      <h3 id="dashDue" style="color:var(--danger);">₹0</h3>
-    </div>
-    <div class="stat-card">
-      <small>कुल भुगतान (₹ Paid)</small>
-      <h3 id="dashPaid" style="color:var(--success);">₹0</h3>
-    </div>
-    <div class="stat-card">
-      <small>कुल बिल रकम</small>
-      <h3 id="dashBilled">₹0</h3>
-    </div>
-    <div class="stat-card">
-      <small>कुल पर्चियां / बिल</small>
-      <h3 id="dashCount">0</h3>
-    </div>
-  </div>
-
-  <!-- Scan Bar -->
-  <div class="scan-options">
-    <button class="btn-act btn-camera" onclick="document.getElementById('inputCamera').click()">
-      📷 कैमरा
-    </button>
-    <button class="btn-act btn-gallery" onclick="document.getElementById('inputGallery').click()">
-      🖼️ गैलरी
-    </button>
-    <button class="btn-act btn-pdf" onclick="document.getElementById('inputPdf').click()">
-      📄 PDF बिल
-    </button>
-  </div>
-
-  <input type="file" id="inputCamera" accept="image/*" capture="environment" style="display:none;" onchange="handleFileSelected(event, 'image')">
-  <input type="file" id="inputGallery" accept="image/*" style="display:none;" onchange="handleFileSelected(event, 'image')">
-  <input type="file" id="inputPdf" accept="application/pdf" style="display:none;" onchange="handleFileSelected(event, 'pdf')">
-
-  <!-- AI Loader -->
-  <div id="aiLoader">
-    <div class="spin"></div>
-    <p id="loaderStatus" style="font-weight:700; color:var(--primary); font-size:13px;">AI बिल पढ़ रहा है...</p>
-    <small style="color:var(--muted);">सप्लायर, सामान और बिल रकम निकाली जा रही है</small>
-  </div>
-
-  <!-- Purchase Bill Create Form -->
-  <div class="form-box" id="billForm">
-    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-      <h3 style="font-size:15px; color:#1e1b4b;">📋 Purchase Invoice जांचें & सेव करें</h3>
-      <button onclick="document.getElementById('billForm').style.display='none'" style="border:none; background:none; font-size:18px;">✕</button>
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>Textile Retail Billing & Payment ERP</h1>
+            <p style="font-size: 12px; color: var(--text-light);">Version 2.0 (Fabric Cut Breakdown, Transport & Bank Details)</p>
+        </div>
+        <span style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 20px; font-weight: 600;">Active ERP</span>
     </div>
 
-    <div class="form-group">
-      <label style="color:var(--primary); font-weight:700;">Party Name (Supplier / विक्रेता फर्म) *</label>
-      <input type="text" id="bSupplier" placeholder="जैसे: BANSAL WOOLLENS PVT. LTD.">
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('billing')">1. Textile Bill Entry</button>
+        <button class="tab-btn" onclick="switchTab('payment')">2. Payment Entry</button>
+        <button class="tab-btn" onclick="switchTab('history')">3. Party Ledgers & Records</button>
     </div>
 
-    <div style="display:flex; gap:8px;" class="form-group">
-      <div style="flex:1;">
-        <label>Invoice Number</label>
-        <input type="text" id="bNo">
-      </div>
-      <div style="flex:1;">
-        <label>Invoice Date</label>
-        <input type="date" id="bDate">
-      </div>
+    <!-- 1. Bill Entry Section -->
+    <div id="billing-section" class="card">
+        <div class="section-subhead">Invoice & Transport Details</div>
+        <div class="form-grid-4">
+            <div class="form-group">
+                <label>Invoice Number</label>
+                <input type="text" id="bill-inv-no" placeholder="Ex: 26-27/0273">
+            </div>
+            <div class="form-group">
+                <label>Invoice Date</label>
+                <input type="date" id="bill-date">
+            </div>
+            <div class="form-group">
+                <label>Despatch Doc / Case No.</label>
+                <input type="text" id="bill-case-no" placeholder="Ex: CASE NO-2219">
+            </div>
+            <div class="form-group">
+                <label>Despatched Through (Transporter)</label>
+                <input type="text" id="bill-transport" placeholder="Ex: Bombay Goods Garage">
+            </div>
+            <div class="form-group">
+                <label>LR No. & Date</label>
+                <input type="text" id="bill-lr-info" placeholder="LR No / Date">
+            </div>
+            <div class="form-group">
+                <label>Supplier / Seller Name</label>
+                <input type="text" id="bill-supplier" placeholder="Ex: Janta Cloth Syndicate">
+            </div>
+            <div class="form-group">
+                <label>Party GSTIN</label>
+                <input type="text" id="bill-gstin" placeholder="Ex: 22AACFJ0688H1ZJ">
+            </div>
+            <div class="form-group">
+                <label>Buyer / Billing To</label>
+                <input type="text" id="bill-buyer" placeholder="Ex: Fashion Club Surajpur">
+            </div>
+        </div>
+
+        <div class="section-subhead">Fabric Items & Than Breakdown</div>
+        <div class="table-responsive">
+            <table id="bill-items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Item Description</th>
+                        <th style="width: 10%;">HSN</th>
+                        <th style="width: 25%;">Than / Cut Breakdown (Mtr x Than)</th>
+                        <th style="width: 10%;">Total Qty</th>
+                        <th style="width: 10%;">Rate (₹)</th>
+                        <th style="width: 8%;">Disc %</th>
+                        <th style="width: 12%;">Amount (₹)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="bill-items-body">
+                    <!-- Dynamic Item Row -->
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="addBillRow()">+ Add Fabric Item</button>
+
+        <!-- Calculation & Bank Section -->
+        <div class="bill-calc-summary">
+            <div class="summary-card">
+                <div style="font-weight: 700; margin-bottom: 8px; color: var(--primary);">Supplier Bank Details (For Settlement)</div>
+                <div class="form-grid-4" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+                    <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" id="sup-bank-name" placeholder="State Bank of India">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" id="sup-acc-no" placeholder="43122286276">
+                    </div>
+                    <div class="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" id="sup-ifsc" placeholder="SBIN0006085">
+                    </div>
+                    <div class="form-group">
+                        <label>Branch</label>
+                        <input type="text" id="sup-branch" placeholder="Pandri Tarai Raipur">
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-line">
+                    <span>Total Fabric Meters:</span>
+                    <strong id="calc-total-meters">0.00 MTR</strong>
+                </div>
+                <div class="summary-line">
+                    <span>Items Taxable Value:</span>
+                    <span id="calc-taxable-val">₹0.00</span>
+                </div>
+                <div class="summary-line" style="align-items: center;">
+                    <span>Freight & Exp (₹):</span>
+                    <input type="number" id="calc-freight" value="0.00" oninput="calculateBillTotal()" style="width: 85px; padding: 2px 4px; text-align: right;">
+                </div>
+                <div class="summary-line">
+                    <span>CGST (2.5%):</span>
+                    <span id="calc-cgst">₹0.00</span>
+                </div>
+                <div class="summary-line">
+                    <span>SGST (2.5%):</span>
+                    <span id="calc-sgst">₹0.00</span>
+                </div>
+                <div class="summary-line" style="align-items: center;">
+                    <span>Round Off (+/-):</span>
+                    <input type="number" step="0.01" id="calc-roundoff" value="0.00" oninput="calculateBillTotal()" style="width: 75px; padding: 2px 4px; text-align: right;">
+                </div>
+                <div class="summary-line total">
+                    <span>Grand Total:</span>
+                    <span id="calc-grand-total">₹0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 16px; text-align: right;">
+            <button class="btn" style="padding: 10px 24px; font-size: 14px;" onclick="saveBill()">Save Invoice Entry</button>
+        </div>
     </div>
 
-    <div class="form-group">
-      <label>Items (सामान / Quantity / भाव)</label>
-      <table class="item-tbl">
-        <thead>
-          <tr><th>आइटम</th><th width="45">Qty</th><th width="65">भाव ₹</th><th width="70">कुल ₹</th></tr>
-        </thead>
-        <tbody id="tblItems"></tbody>
-      </table>
+    <!-- 2. Payment Entry Section -->
+    <div id="payment-section" class="card hidden">
+        <div class="section-subhead">Vendor / Party Payment Entry</div>
+        <div class="form-grid-4">
+            <div class="form-group">
+                <label>Payment Date</label>
+                <input type="date" id="pay-date">
+            </div>
+            <div class="form-group">
+                <label>Select Party / Beneficiary</label>
+                <input type="text" id="pay-party" placeholder="Party Name (Ex: Janta Cloth Syndicate)">
+            </div>
+            <div class="form-group">
+                <label>Payment Mode</label>
+                <select id="pay-mode">
+                    <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+                    <option value="UPI / Online">UPI / Online</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="Cash">Cash</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount Paid (₹)</label>
+                <input type="number" id="pay-amount" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>Target Bank / Account</label>
+                <input type="text" id="pay-acc-ref" placeholder="A/C No. or UTR No.">
+            </div>
+            <div class="form-group">
+                <label>Remarks / Cheque No.</label>
+                <input type="text" id="pay-remarks" placeholder="Notes">
+            </div>
+        </div>
+
+        <div style="margin-top: 16px; text-align: right;">
+            <button class="btn" onclick="savePayment()">Record Payment & View Account</button>
+        </div>
     </div>
 
-    <div style="display:flex; gap:8px;" class="form-group">
-      <div style="flex:1;">
-        <label>Total Amount (₹) *</label>
-        <input type="number" id="bTotal" style="font-weight:800; font-size:16px;">
-      </div>
-      <div style="flex:1;">
-        <label>तुरंत दिया (Paid Advance)</label>
-        <input type="number" id="bAdvance" value="0">
-      </div>
+    <!-- 3. Records / History Section -->
+    <div id="history-section" class="card hidden">
+        <div class="section-subhead">All Transactions & Ledger Records</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Party / Supplier</th>
+                        <th>Particulars / Details</th>
+                        <th>Debit / Paid (₹)</th>
+                        <th>Credit / Billed (₹)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="records-table-body">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-light);">Koi record mojud nahi hai.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+</div>
 
-    <button class="btn-act btn-camera" style="width:100%; margin-top:8px; padding:12px; font-size:14px;" onclick="saveBill()">✓ Create Purchase (सेव करें)</button>
-  </div>
-
-  <!-- Record Payment Out Form -->
-  <div class="form-box" id="payForm">
-    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-      <h3 style="font-size:15px; color:#15803d;">💰 Record Payment Out</h3>
-      <button onclick="document.getElementById('payForm').style.display='none'" style="border:none; background:none; font-size:18px;">✕</button>
+<!-- Account Details Popup Modal -->
+<div id="accountModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="font-size: 16px; color: var(--primary);" id="modal-party-name">Party Account Details</h3>
+            <button onclick="closeModal()" style="border:none; background:none; font-size:18px; cursor:pointer;">&times;</button>
+        </div>
+        <div style="font-size: 13px; line-height: 1.6;">
+            <div style="background: #f8fafc; padding: 10px; border-radius: 6px; margin-bottom: 12px; border: 1px solid var(--border);">
+                <div><strong>Bank Name:</strong> <span id="modal-bank-name">N/A</span></div>
+                <div><strong>A/C No:</strong> <span id="modal-acc-no">N/A</span></div>
+                <div><strong>IFSC:</strong> <span id="modal-ifsc">N/A</span></div>
+                <div><strong>Branch:</strong> <span id="modal-branch">N/A</span></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding: 6px 0;">
+                <span>Total Billed Amount:</span>
+                <strong id="modal-total-billed">₹0.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding: 6px 0; color: var(--success);">
+                <span>Total Paid Amount:</span>
+                <strong id="modal-total-paid">₹0.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; color: var(--danger); font-weight: 700;">
+                <span>Outstanding Balance:</span>
+                <span id="modal-balance">₹0.00</span>
+            </div>
+        </div>
+        <div style="text-align: right; margin-top: 16px;">
+            <button class="btn btn-outline" onclick="closeModal()">Close</button>
+        </div>
     </div>
-    
-    <div class="form-group">
-      <label>सप्लायर फर्म *</label>
-      <select id="pPartySelect" onchange="checkCustomSupplier(this.value)">
-      </select>
-    </div>
+</div>
 
-    <div class="form-group" id="customSupplierDiv" style="display:none;">
-      <label>नया सप्लायर दर्ज करें</label>
-      <input type="text" id="pPartyCustom" placeholder="सप्लायर का नाम">
-    </div>
+<script>
+    let dbRecords = [];
+    let partyBankMaster = {};
 
-    <div class="form-group">
-      <label>भुगतान रकम (₹) *</label>
-      <input type="number" id="pAmt" placeholder="0.00" style="font-weight:800; font-size:16px;">
-    </div>
-    <div class="form-group">
-      <label>Payment Mode</label>
-      <select id="pMode">
-        <option value="Bank Transfer">Bank Transfer (RTGS / NEFT)</option>
-        <option value="UPI">UPI / PhonePe / GPay</option>
-        <option value="Cheque">Cheque</option>
-        <option value="Cash">Cash</option>
-      </select>
-    </div>
-    <button class="btn-act" style="background:var(--success); width:100%; padding:12px; font-size:14px;" onclick="savePayment()">✓ Save Payment</button>
-  </div>
+    window.onload = function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bill-date').value = today;
+        document.getElementById('pay-date').value = today;
+        addBillRow();
+    };
 
-  <!-- Tabs Navigation -->
-  <div class="tabs">
-    <button class="tab active" id="tBills" onclick="toggleView('bills')">Transactions (पर्चियां)</button>
-    <button class="tab" id="tLedger" onclick="toggleView('ledger')">Parties (सप्लायर खाता)</button>
-  </div>
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('billing-section').classList.add('hidden');
+        document.getElementById('payment-section').classList.add('hidden');
+        document.getElementById('history-section').classList.add('hidden');
 
-  <!-- Lists -->
-  <div class="card-list" id="vBills"></div>
-  <div class="card-list" id="vLedger" style="display:none;"></div>
-
-  <script>
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-
-    let bills = JSON.parse(localStorage.getItem('vm_bills') || '[]');
-    let payments = JSON.parse(localStorage.getItem('vm_payments') || '[]');
-    let apiKey = localStorage.getItem('gemini_api_key') || '';
-
-    function setApiKey() {
-      const k = prompt("Google Gemini API Key दर्ज करें:", apiKey);
-      if (k) {
-        apiKey = k.trim();
-        localStorage.setItem('gemini_api_key', apiKey);
-        alert("API Key सेव हो गई!");
-      }
-    }
-
-    async function handleFileSelected(e, type) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      if (!apiKey) {
-        alert("कृपया पहले ऊपर '🔑 AI Key' बटन दबाकर अपनी Gemini API Key दर्ज करें।");
-        setApiKey();
-        if (!apiKey) return;
-      }
-
-      document.getElementById('billForm').style.display = 'none';
-      const loader = document.getElementById('aiLoader');
-      const statusText = document.getElementById('loaderStatus');
-      loader.style.display = 'block';
-
-      try {
-        let base64Image = "";
-        if (type === 'pdf') {
-          statusText.innerText = "PDF पेज कन्वर्ट हो रहा है...";
-          base64Image = await convertPdfToImageBase64(file);
-        } else {
-          statusText.innerText = "फोटो कंप्रेस हो रही है...";
-          base64Image = await compressImageToBase64(file);
+        if(tab === 'billing') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('billing-section').classList.remove('hidden');
+        } else if(tab === 'payment') {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('payment-section').classList.remove('hidden');
+        } else if(tab === 'history') {
+            document.querySelectorAll('.tab-btn')[2].classList.add('active');
+            document.getElementById('history-section').classList.remove('hidden');
+            renderRecords();
         }
-
-        statusText.innerText = "Gemini 3.8 Purchase Details निकाल रहा है...";
-        await callGeminiAI(base64Image);
-      } catch (err) {
-        loader.style.display = 'none';
-        alert("त्रुटि: " + err.message);
-      } finally {
-        e.target.value = '';
-      }
     }
 
-    async function convertPdfToImageBase64(file) {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 2.0 });
-
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-      return canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+    function addBillRow() {
+        const tbody = document.getElementById('bill-items-body');
+        const tr = document.createElement('tr');
+        tr.className = 'item-row';
+        tr.innerHTML = `
+            <td><input type="text" class="item-name" placeholder="Ex: BSL -SOFTWEAR PLUS" style="width:100%;"></td>
+            <td><input type="text" class="item-hsn" placeholder="551511" style="width:100%;"></td>
+            <td>
+                <div class="than-input-wrap">
+                    <div class="than-row">
+                        <input type="number" placeholder="Mtr" class="cut-mtr" oninput="calculateBillTotal()" style="width:50%;">
+                        <input type="number" placeholder="Than" class="cut-than" oninput="calculateBillTotal()" style="width:50%;">
+                    </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="margin-top:4px;" onclick="addThanCut(this)">+ Than</button>
+            </td>
+            <td><input type="number" class="item-total-qty" placeholder="0.00" oninput="calculateBillTotal()" style="width:100%; font-weight:600;"></td>
+            <td><input type="number" class="item-rate" placeholder="0.00" oninput="calculateBillTotal()" style="width:100%;"></td>
+            <td><input type="number" class="item-disc" placeholder="0" oninput="calculateBillTotal()" style="width:100%;"></td>
+            <td><strong class="item-row-amt">0.00</strong></td>
+            <td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>
+        `;
+        tbody.appendChild(tr);
     }
 
-    function compressImageToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (e) => {
-          const img = new Image();
-          img.src = e.target.result;
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const scale = 950 / Math.max(img.width, img.height);
-            canvas.width = img.width * (scale < 1 ? scale : 1);
-            canvas.height = img.height * (scale < 1 ? scale : 1);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.78).split(',')[1]);
-          };
-          img.onerror = () => reject(new Error("फोटो लोड नहीं हो सकी"));
-        };
-        reader.onerror = () => reject(new Error("फाइल नहीं पढ़ी जा सकी"));
-      });
+    function addThanCut(btn) {
+        const wrap = btn.previousElementSibling;
+        const row = document.createElement('div');
+        row.className = 'than-row';
+        row.style.marginTop = '4px';
+        row.innerHTML = `
+            <input type="number" placeholder="Mtr" class="cut-mtr" oninput="calculateBillTotal()" style="width:50%;">
+            <input type="number" placeholder="Than" class="cut-than" oninput="calculateBillTotal()" style="width:50%;">
+        `;
+        wrap.appendChild(row);
     }
 
-    async function callGeminiAI(base64Data) {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
-
-      const promptText = `Analyze this wholesale textile purchase invoice (like MyBillBook OCR).
-Extract the following into STRICT JSON ONLY (no markdown formatting, no backticks):
-{
-  "supplierName": "Full firm name of seller/supplier at top header",
-  "invoiceNo": "Invoice/Bill number",
-  "date": "YYYY-MM-DD",
-  "items": [{"name": "Item description", "qty": 1, "rate": 0, "total": 0}],
-  "grandTotal": 0
-}`;
-
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: promptText },
-              { inline_data: { mime_type: "image/jpeg", data: base64Data } }
-            ]
-          }]
-        })
-      });
-
-      document.getElementById('aiLoader').style.display = 'none';
-      const resJson = await res.json();
-
-      if (resJson.error) {
-        throw new Error("Google AI Error: " + resJson.error.message);
-      }
-
-      if (resJson.candidates && resJson.candidates[0].content) {
-        let text = resJson.candidates[0].content.parts[0].text;
-        text = text.replace(/```json/gi, '').replace(/```/gi, '').trim();
-
-        let parsed = null;
-        try {
-          parsed = JSON.parse(text);
-        } catch (pe) {
-          const s = text.indexOf('{');
-          const e = text.lastIndexOf('}');
-          if (s !== -1 && e !== -1) {
-            try { parsed = JSON.parse(text.substring(s, e + 1)); } catch(err) {}
-          }
+    function removeRow(btn) {
+        const tbody = document.getElementById('bill-items-body');
+        if(tbody.querySelectorAll('.item-row').length > 1) {
+            btn.closest('tr').remove();
+            calculateBillTotal();
         }
-
-        if (parsed) {
-          openBillFormWithData(parsed);
-        } else {
-          // Manual Fallback Regex
-          const supp = text.match(/supplier(?:Name)?["':\s*]+([^\n",*]+)/i);
-          const inv = text.match(/invoice(?:No)?["':\s*]+([^\n",*]+)/i);
-          const tot = text.match(/grandTotal["':\s*]+([\d,.]+)/i) || text.match(/Total(?: Amount)?[:\s*]+[₹Rs.\s]*([\d,.]+)/i);
-          openBillFormWithData({
-            supplierName: supp ? supp[1].trim() : '',
-            invoiceNo: inv ? inv[1].trim() : '',
-            grandTotal: tot ? parseFloat(tot[1].replace(/,/g, '')) : 0
-          });
-        }
-      } else {
-        throw new Error("AI ने कोई डेटा वापस नहीं भेजा।");
-      }
     }
 
-    function openBillFormWithData(d) {
-      document.getElementById('bSupplier').value = d.supplierName || '';
-      document.getElementById('bNo').value = d.invoiceNo || 'B-' + Math.floor(100 + Math.random()*900);
-      document.getElementById('bDate').value = d.date || new Date().toISOString().split('T')[0];
-      document.getElementById('bTotal').value = d.grandTotal || 0;
-      document.getElementById('bAdvance').value = 0;
+    function calculateBillTotal() {
+        const rows = document.querySelectorAll('.item-row');
+        let totalMeters = 0;
+        let taxableValue = 0;
 
-      const tb = document.getElementById('tblItems');
-      tb.innerHTML = '';
-      if (d.items && d.items.length > 0) {
-        d.items.forEach(it => {
-          tb.innerHTML += `<tr>
-            <td><input type="text" value="${it.name || ''}"></td>
-            <td><input type="number" value="${it.qty || 1}"></td>
-            <td><input type="number" value="${it.rate || 0}"></td>
-            <td><input type="number" value="${it.total || 0}"></td>
-          </tr>`;
+        rows.forEach(r => {
+            const cutMtrs = r.querySelectorAll('.cut-mtr');
+            const cutThans = r.querySelectorAll('.cut-than');
+            let rowCalculatedQty = 0;
+
+            for(let i=0; i<cutMtrs.length; i++) {
+                const mtr = parseFloat(cutMtrs[i].value) || 0;
+                const than = parseFloat(cutThans[i].value) || 1;
+                if(mtr > 0) rowCalculatedQty += (mtr * than);
+            }
+
+            const totalQtyInput = r.querySelector('.item-total-qty');
+            if(rowCalculatedQty > 0) {
+                totalQtyInput.value = rowCalculatedQty.toFixed(2);
+            }
+
+            const qty = parseFloat(totalQtyInput.value) || 0;
+            const rate = parseFloat(r.querySelector('.item-rate').value) || 0;
+            const disc = parseFloat(r.querySelector('.item-disc').value) || 0;
+
+            let rowAmt = qty * rate;
+            if(disc > 0) {
+                rowAmt = rowAmt - (rowAmt * (disc / 100));
+            }
+
+            r.querySelector('.item-row-amt').innerText = rowAmt.toFixed(2);
+            totalMeters += qty;
+            taxableValue += rowAmt;
         });
-      } else {
-        tb.innerHTML = `<tr>
-          <td><input type="text" value="वस्त्र सामग्री"></td>
-          <td><input type="number" value="1"></td>
-          <td><input type="number" value="${d.grandTotal || 0}"></td>
-          <td><input type="number" value="${d.grandTotal || 0}"></td>
-        </tr>`;
-      }
 
-      document.getElementById('billForm').style.display = 'block';
-      window.scrollTo({ top: 320, behavior: 'smooth' });
+        const freight = parseFloat(document.getElementById('calc-freight').value) || 0;
+        const netTaxable = taxableValue + freight;
+        const cgst = netTaxable * 0.025;
+        const sgst = netTaxable * 0.025;
+        const roundOff = parseFloat(document.getElementById('calc-roundoff').value) || 0;
+        const grandTotal = netTaxable + cgst + sgst + roundOff;
+
+        document.getElementById('calc-total-meters').innerText = totalMeters.toFixed(2) + ' MTR';
+        document.getElementById('calc-taxable-val').innerText = '₹' + taxableValue.toFixed(2);
+        document.getElementById('calc-cgst').innerText = '₹' + cgst.toFixed(2);
+        document.getElementById('calc-sgst').innerText = '₹' + sgst.toFixed(2);
+        document.getElementById('calc-grand-total').innerText = '₹' + grandTotal.toFixed(2);
     }
 
     function saveBill() {
-      const supplier = document.getElementById('bSupplier').value.trim();
-      const total = parseFloat(document.getElementById('bTotal').value) || 0;
-      const adv = parseFloat(document.getElementById('bAdvance').value) || 0;
+        const invNo = document.getElementById('bill-inv-no').value;
+        const invDate = document.getElementById('bill-date').value;
+        const supplier = document.getElementById('bill-supplier').value;
+        const grandTotal = parseFloat(document.getElementById('calc-grand-total').innerText.replace('₹','')) || 0;
 
-      if (!supplier) return alert("सप्लायर फर्म का नाम दर्ज करें");
-      if (total <= 0) return alert("वैध कुल बिल रकम लिखें");
+        if(!supplier || grandTotal <= 0) {
+            alert('Kripya Supplier Name aur items fill karein.');
+            return;
+        }
 
-      bills = JSON.parse(localStorage.getItem('vm_bills') || '[]');
-      payments = JSON.parse(localStorage.getItem('vm_payments') || '[]');
+        // Save Party Bank Details in Master
+        partyBankMaster[supplier] = {
+            bank: document.getElementById('sup-bank-name').value || 'N/A',
+            acc: document.getElementById('sup-acc-no').value || 'N/A',
+            ifsc: document.getElementById('sup-ifsc').value || 'N/A',
+            branch: document.getElementById('sup-branch').value || 'N/A'
+        };
 
-      bills.unshift({
-        id: 'B_' + Date.now(),
-        supplier: supplier,
-        no: document.getElementById('bNo').value,
-        date: document.getElementById('bDate').value,
-        total: total,
-        paid: adv
-      });
-
-      if (adv > 0) {
-        payments.unshift({
-          id: 'P_' + Date.now(),
-          party: supplier,
-          amt: adv,
-          date: document.getElementById('bDate').value,
-          mode: 'Advance'
+        dbRecords.push({
+            date: invDate,
+            type: 'Bill Entry',
+            party: supplier,
+            details: `Inv: ${invNo || 'N/A'} | Case: ${document.getElementById('bill-case-no').value || '-'} | Trans: ${document.getElementById('bill-transport').value || '-'}`,
+            debit: 0,
+            credit: grandTotal
         });
-      }
 
-      localStorage.setItem('vm_bills', JSON.stringify(bills));
-      localStorage.setItem('vm_payments', JSON.stringify(payments));
-
-      document.getElementById('billForm').style.display = 'none';
-      render();
-      alert("✓ Purchase Invoice सुरक्षित हो गई!");
-    }
-
-    // Direct MyBillBook Style "Record Payment Out"
-    function recordPaymentOut(supplierName, remainingAmt) {
-      bills = JSON.parse(localStorage.getItem('vm_bills') || '[]');
-      const uniqueSuppliers = [...new Set(bills.map(b => b.supplier).filter(Boolean))];
-      
-      const select = document.getElementById('pPartySelect');
-      select.innerHTML = '';
-      uniqueSuppliers.forEach(name => {
-        select.innerHTML += `<option value="${name}" ${name === supplierName ? 'selected' : ''}>${name}</option>`;
-      });
-      select.innerHTML += '<option value="__NEW__">➕ नया सप्लायर लिखें...</option>';
-
-      document.getElementById('customSupplierDiv').style.display = 'none';
-      document.getElementById('pAmt').value = remainingAmt > 0 ? remainingAmt : '';
-      document.getElementById('payForm').style.display = 'block';
-      window.scrollTo({ top: 320, behavior: 'smooth' });
-    }
-
-    function checkCustomSupplier(val) {
-      document.getElementById('customSupplierDiv').style.display = val === '__NEW__' ? 'block' : 'none';
+        alert('Invoice successfully save ho gaya!');
+        switchTab('history');
     }
 
     function savePayment() {
-      const selectVal = document.getElementById('pPartySelect').value;
-      const finalParty = selectVal === '__NEW__' ? document.getElementById('pPartyCustom').value.trim() : selectVal;
-      const amt = parseFloat(document.getElementById('pAmt').value) || 0;
+        const payDate = document.getElementById('pay-date').value;
+        const party = document.getElementById('pay-party').value;
+        const mode = document.getElementById('pay-mode').value;
+        const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
+        const accRef = document.getElementById('pay-acc-ref').value;
 
-      if (!finalParty) return alert("सप्लायर चुनें या नाम लिखें");
-      if (amt <= 0) return alert("वैध भुगतान रकम लिखें");
+        if(!party || amount <= 0) {
+            alert('Kripya valid party name aur amount enter karein.');
+            return;
+        }
 
-      payments = JSON.parse(localStorage.getItem('vm_payments') || '[]');
-      payments.unshift({
-        id: 'P_' + Date.now(),
-        party: finalParty,
-        amt: amt,
-        date: new Date().toISOString().split('T')[0],
-        mode: document.getElementById('pMode').value
-      });
+        dbRecords.push({
+            date: payDate,
+            type: 'Payment',
+            party: party,
+            details: `${mode} | Ref: ${accRef || '-'}`,
+            debit: amount,
+            credit: 0
+        });
 
-      localStorage.setItem('vm_payments', JSON.stringify(payments));
-      document.getElementById('payForm').style.display = 'none';
-      render();
-      alert("✓ Payment Out दर्ज हो गया!");
+        // Open Account Details Modal
+        showAccountModal(party);
+        document.getElementById('pay-amount').value = '';
+        document.getElementById('pay-remarks').value = '';
     }
 
-    function toggleView(v) {
-      if (v === 'bills') {
-        document.getElementById('vBills').style.display = 'block';
-        document.getElementById('vLedger').style.display = 'none';
-        document.getElementById('tBills').classList.add('active');
-        document.getElementById('tLedger').classList.remove('active');
-      } else {
-        document.getElementById('vBills').style.display = 'none';
-        document.getElementById('vLedger').style.display = 'block';
-        document.getElementById('tBills').classList.remove('active');
-        document.getElementById('tLedger').classList.add('active');
-      }
+    function showAccountModal(partyName) {
+        document.getElementById('modal-party-name').innerText = partyName + ' - Account Summary';
+        
+        const bank = partyBankMaster[partyName] || { bank: 'Not Recorded', acc: '-', ifsc: '-', branch: '-' };
+        document.getElementById('modal-bank-name').innerText = bank.bank;
+        document.getElementById('modal-acc-no').innerText = bank.acc;
+        document.getElementById('modal-ifsc').innerText = bank.ifsc;
+        document.getElementById('modal-branch').innerText = bank.branch;
+
+        let billed = 0;
+        let paid = 0;
+
+        dbRecords.filter(r => r.party.toLowerCase() === partyName.toLowerCase()).forEach(r => {
+            billed += r.credit;
+            paid += r.debit;
+        });
+
+        document.getElementById('modal-total-billed').innerText = '₹' + billed.toFixed(2);
+        document.getElementById('modal-total-paid').innerText = '₹' + paid.toFixed(2);
+        document.getElementById('modal-balance').innerText = '₹' + (billed - paid).toFixed(2);
+
+        document.getElementById('accountModal').classList.remove('hidden');
     }
 
-    function render() {
-      bills = JSON.parse(localStorage.getItem('vm_bills') || '[]');
-      payments = JSON.parse(localStorage.getItem('vm_payments') || '[]');
-
-      let bSum = bills.reduce((s, b) => s + b.total, 0);
-      let pSum = payments.reduce((s, p) => s + p.amt, 0);
-      let dueSum = Math.max(0, bSum - pSum);
-
-      document.getElementById('dashBilled').innerText = '₹' + bSum.toLocaleString('en-IN');
-      document.getElementById('dashPaid').innerText = '₹' + pSum.toLocaleString('en-IN');
-      document.getElementById('dashDue').innerText = '₹' + dueSum.toLocaleString('en-IN');
-      document.getElementById('dashCount').innerText = bills.length;
-
-      // Party-wise Ledger Calculation
-      const parties = {};
-      bills.forEach(b => {
-        parties[b.supplier] = parties[b.supplier] || { b: 0, p: 0 };
-        parties[b.supplier].b += b.total;
-      });
-      payments.forEach(p => {
-        parties[p.party] = parties[p.party] || { b: 0, p: 0 };
-        parties[p.party].p += p.amt;
-      });
-
-      // Transactions View (Matching MyBillBook)
-      document.getElementById('vBills').innerHTML = bills.map(b => {
-        const partyBalance = parties[b.supplier] ? Math.max(0, parties[b.supplier].b - parties[b.supplier].p) : b.total;
-        const isPaid = partyBalance === 0;
-
-        return `
-          <div class="txn-card">
-            <div class="txn-head">
-              <h4>${b.supplier}</h4>
-              <div class="txn-amt">
-                <h3>₹${b.total.toLocaleString('en-IN')}</h3>
-                <span class="badge ${isPaid ? 'badge-paid' : 'badge-unpaid'}">
-                  ${isPaid ? 'Paid' : 'Unpaid'}
-                </span>
-              </div>
-            </div>
-            <p class="txn-sub">Purchase Invoice #${b.no} • ${b.date}</p>
-            ${!isPaid ? `
-              <div class="btn-rec-pay" onclick="recordPaymentOut('${b.supplier.replace(/'/g, "\\'")}', ${partyBalance})">
-                ₹ Record Payment Out
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('') || '<p style="text-align:center; color:gray; padding:25px;">कोई पर्ची / बिल नहीं है</p>';
-
-      // Parties Ledger View
-      document.getElementById('vLedger').innerHTML = Object.keys(parties).map(k => {
-        const due = parties[k].b - parties[k].p;
-        return `
-          <div class="txn-card">
-            <div class="txn-head">
-              <h4>${k}</h4>
-              <div class="txn-amt">
-                <h3 style="color:${due > 0 ? 'var(--danger)' : 'var(--success)'};">
-                  ${due > 0 ? '₹' + due.toLocaleString('en-IN') : '₹0'}
-                </h3>
-                <small style="color:var(--muted); font-size:10px;">${due > 0 ? 'To Pay (देना बाकी)' : 'All Clear ✓'}</small>
-              </div>
-            </div>
-            <p class="txn-sub">कुल खरीद: ₹${parties[k].b.toLocaleString('en-IN')} | कुल चुकाया: ₹${parties[k].p.toLocaleString('en-IN')}</p>
-            ${due > 0 ? `
-              <div class="btn-rec-pay" onclick="recordPaymentOut('${k.replace(/'/g, "\\'")}', ${due})">
-                ₹ Record Payment Out
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('') || '<p style="text-align:center; color:gray; padding:25px;">खाते में कोई सप्लायर नहीं है</p>';
+    function closeModal() {
+        document.getElementById('accountModal').classList.add('hidden');
     }
 
-    render();
-  </script>
+    function renderRecords() {
+        const tbody = document.getElementById('records-table-body');
+        if(dbRecords.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-light);">Koi record mojud nahi hai.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = dbRecords.map(r => `
+            <tr>
+                <td>${r.date}</td>
+                <td><strong style="color: ${r.type === 'Payment' ? 'var(--success)' : 'var(--primary-accent)'}">${r.type}</strong></td>
+                <td><strong>${r.party}</strong></td>
+                <td>${r.details}</td>
+                <td style="color: var(--success);">${r.debit > 0 ? '₹' + r.debit.toFixed(2) : '-'}</td>
+                <td style="color: var(--primary);">${r.credit > 0 ? '₹' + r.credit.toFixed(2) : '-'}</td>
+                <td><button class="btn btn-outline btn-sm" onclick="showAccountModal('${r.party}')">View A/C</button></td>
+            </tr>
+        `).join('');
+    }
+</script>
+
 </body>
 </html>
