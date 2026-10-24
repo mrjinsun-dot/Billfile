@@ -3,104 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>वस्त्रमित्र - AI बिल & सप्लायर खाता</title>
+  <title>वस्त्रमित्र - Smart Business Ledger</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     :root {
-      --primary: #2563eb;
-      --bg: #f8fafc;
+      --primary: #4f46e5;
+      --bg: #f1f5f9;
       --card: #ffffff;
       --text: #0f172a;
       --muted: #64748b;
       --success: #16a34a;
       --danger: #dc2626;
-      --border: #cbd5e1;
+      --border: #e2e8f0;
+      --badge-unpaid: #fee2e2;
+      --badge-text: #b91c1c;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 95px; }
 
-    header { background: #1e293b; color: white; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-    header h1 { font-size: 17px; font-weight: 700; }
-    .btn-key { background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    header { background: #1e1b4b; color: white; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    header h1 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .btn-key { background: #312e81; color: #e0e7ff; border: 1px solid #4338ca; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
+    /* MyBillBook Style Dashboard Cards */
     .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
-    .stat-card { background: var(--card); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
-    .stat-card small { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-    .stat-card h3 { font-size: 18px; margin-top: 2px; }
+    .stat-card { background: var(--card); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .stat-card small { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .stat-card h3 { font-size: 19px; margin-top: 4px; font-weight: 800; }
 
-    .scan-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 10px; }
-    .btn-act { padding: 12px; border-radius: 10px; border: none; font-size: 13px; font-weight: 700; color: white; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    /* Actions */
+    .scan-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 12px 10px; }
+    .btn-act { padding: 11px 8px; border-radius: 10px; border: none; font-size: 12px; font-weight: 700; color: white; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .btn-camera { background: var(--primary); }
-    .btn-gallery { background: #475569; }
+    .btn-gallery { background: #334155; }
     .btn-pdf { background: #d97706; }
-    .btn-pay { background: var(--success); }
 
-    #aiLoader { display: none; background: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 10px; padding: 14px; margin: 0 12px 12px; text-align: center; }
-    .spin { width: 22px; height: 22px; border: 3px solid #bae6fd; border-top-color: var(--primary); border-radius: 50%; animation: sp 0.8s linear infinite; margin: 0 auto 6px; }
+    /* AI Loader */
+    #aiLoader { display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: 16px; margin: 0 12px 14px; text-align: center; }
+    .spin { width: 24px; height: 24px; border: 3px solid #c7d2fe; border-top-color: var(--primary); border-radius: 50%; animation: sp 0.8s linear infinite; margin: 0 auto 8px; }
     @keyframes sp { to { transform: rotate(360deg); } }
 
-    .form-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin: 0 12px 14px; display: none; }
+    /* Forms */
+    .form-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin: 0 12px 14px; display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; background: white; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: white; }
 
     .item-tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
     .item-tbl th { background: #f8fafc; padding: 6px; text-align: left; color: var(--muted); border-bottom: 1px solid var(--border); }
     .item-tbl td { padding: 4px; border-bottom: 1px solid var(--border); }
     .item-tbl input { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
 
-    .tabs { display: flex; background: white; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-    .tab { flex: 1; padding: 12px; text-align: center; font-size: 14px; font-weight: 600; color: var(--muted); border: none; background: none; border-bottom: 2px solid transparent; }
+    /* Tabs */
+    .tabs { display: flex; background: white; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .tab { flex: 1; padding: 13px; text-align: center; font-size: 13px; font-weight: 700; color: var(--muted); border: none; background: none; border-bottom: 3px solid transparent; }
     .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
+    /* Transaction Row Cards (MyBillBook Clone) */
     .card-list { padding: 0 12px; }
-    .row-card { background: var(--card); padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .row-card h4 { font-size: 14px; }
-    .row-card p { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .row-card .amt { font-size: 15px; font-weight: 700; text-align: right; }
+    .txn-card { background: var(--card); padding: 14px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+    .txn-head { display: flex; justify-content: space-between; align-items: flex-start; }
+    .txn-head h4 { font-size: 14px; font-weight: 700; color: #1e293b; max-width: 65%; word-break: break-word; }
+    .txn-amt { text-align: right; }
+    .txn-amt h3 { font-size: 15px; font-weight: 800; }
+    .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-top: 3px; }
+    .badge-unpaid { background: var(--badge-unpaid); color: var(--badge-text); }
+    .badge-paid { background: #dcfce7; color: #15803d; }
+    .txn-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    
+    /* Record Payment Out Button */
+    .btn-rec-pay { display: inline-flex; align-items: center; gap: 4px; color: var(--primary); background: #eef2ff; border: 1px solid #c7d2fe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 10px; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <header>
     <div>
-      <h1>वस्त्रमित्र AI खाता v2.1</h1>
-      <small style="opacity:0.8; font-size:10px;">सप्लायर & बिल ट्रैकिंग</small>
+      <h1>⚡ वस्त्रमित्र AI (MyBillBook Mode)</h1>
+      <small style="opacity:0.8; font-size:10px;">Purchase & Ledger Automation</small>
     </div>
     <button class="btn-key" onclick="setApiKey()">🔑 AI Key</button>
   </header>
 
+  <!-- Dashboard Overview -->
   <div class="dashboard">
     <div class="stat-card">
-      <small>कुल बिल खरीद (₹)</small>
-      <h3 id="dashBilled">₹0</h3>
-    </div>
-    <div class="stat-card">
-      <small>कुल भुगतान (₹)</small>
-      <h3 id="dashPaid" style="color:var(--success);">₹0</h3>
-    </div>
-    <div class="stat-card">
-      <small>सप्लायर देनदारी (₹)</small>
+      <small>कुल खरीद (₹ To Pay)</small>
       <h3 id="dashDue" style="color:var(--danger);">₹0</h3>
     </div>
     <div class="stat-card">
-      <small>कुल बिल</small>
+      <small>कुल भुगतान (₹ Paid)</small>
+      <h3 id="dashPaid" style="color:var(--success);">₹0</h3>
+    </div>
+    <div class="stat-card">
+      <small>कुल बिल रकम</small>
+      <h3 id="dashBilled">₹0</h3>
+    </div>
+    <div class="stat-card">
+      <small>कुल पर्चियां / बिल</small>
       <h3 id="dashCount">0</h3>
     </div>
   </div>
 
+  <!-- Scan Bar -->
   <div class="scan-options">
     <button class="btn-act btn-camera" onclick="document.getElementById('inputCamera').click()">
-      📷 कैमरा स्कैन
+      📷 कैमरा
     </button>
     <button class="btn-act btn-gallery" onclick="document.getElementById('inputGallery').click()">
-      🖼️ गैलरी फोटो
+      🖼️ गैलरी
     </button>
     <button class="btn-act btn-pdf" onclick="document.getElementById('inputPdf').click()">
       📄 PDF बिल
-    </button>
-    <button class="btn-act btn-pay" onclick="showPayForm()">
-      💰 + भुगतान एंट्री
     </button>
   </div>
 
@@ -108,45 +122,41 @@
   <input type="file" id="inputGallery" accept="image/*" style="display:none;" onchange="handleFileSelected(event, 'image')">
   <input type="file" id="inputPdf" accept="application/pdf" style="display:none;" onchange="handleFileSelected(event, 'pdf')">
 
+  <!-- AI Loader -->
   <div id="aiLoader">
     <div class="spin"></div>
     <p id="loaderStatus" style="font-weight:700; color:var(--primary); font-size:13px;">AI बिल पढ़ रहा है...</p>
-    <small style="color:var(--muted);">सप्लायर, सामान और रकम निकाली जा रही है</small>
+    <small style="color:var(--muted);">सप्लायर, सामान और बिल रकम निकाली जा रही है</small>
   </div>
 
-  <!-- बिल फॉर्म -->
+  <!-- Purchase Bill Create Form -->
   <div class="form-box" id="billForm">
     <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-      <h3 style="font-size:15px;">📝 बिल विवरण जांचें & सेव करें</h3>
-      <button onclick="document.getElementById('billForm').style.display='none'" style="border:none; background:none; font-size:16px;">✕</button>
+      <h3 style="font-size:15px; color:#1e1b4b;">📋 Purchase Invoice जांचें & सेव करें</h3>
+      <button onclick="document.getElementById('billForm').style.display='none'" style="border:none; background:none; font-size:18px;">✕</button>
     </div>
 
     <div class="form-group">
-      <label style="color:var(--primary); font-weight:700;">🏢 सप्लायर का नाम (विक्रेता / फर्म) *</label>
-      <input type="text" id="bSupplier" placeholder="सप्लायर फर्म नाम">
+      <label style="color:var(--primary); font-weight:700;">Party Name (Supplier / विक्रेता फर्म) *</label>
+      <input type="text" id="bSupplier" placeholder="जैसे: BANSAL WOOLLENS PVT. LTD.">
     </div>
 
     <div style="display:flex; gap:8px;" class="form-group">
       <div style="flex:1;">
-        <label>खरीदार / दुकान का नाम</label>
-        <input type="text" id="bBuyer" placeholder="Billed to नाम">
-      </div>
-      <div style="flex:1;">
-        <label>बिल नंबर</label>
+        <label>Invoice Number</label>
         <input type="text" id="bNo">
       </div>
+      <div style="flex:1;">
+        <label>Invoice Date</label>
+        <input type="date" id="bDate">
+      </div>
     </div>
 
     <div class="form-group">
-      <label>तारीख</label>
-      <input type="date" id="bDate">
-    </div>
-
-    <div class="form-group">
-      <label>आइटम विवरण</label>
+      <label>Items (सामान / Quantity / भाव)</label>
       <table class="item-tbl">
         <thead>
-          <tr><th>सामान</th><th width="45">Qty</th><th width="65">भाव ₹</th><th width="70">कुल ₹</th></tr>
+          <tr><th>आइटम</th><th width="45">Qty</th><th width="65">भाव ₹</th><th width="70">कुल ₹</th></tr>
         </thead>
         <tbody id="tblItems"></tbody>
       </table>
@@ -154,34 +164,34 @@
 
     <div style="display:flex; gap:8px;" class="form-group">
       <div style="flex:1;">
-        <label>कुल बिल रकम (₹) *</label>
+        <label>Total Amount (₹) *</label>
         <input type="number" id="bTotal" style="font-weight:800; font-size:16px;">
       </div>
       <div style="flex:1;">
-        <label>तुरंत दिया (Paid)</label>
+        <label>तुरंत दिया (Paid Advance)</label>
         <input type="number" id="bAdvance" value="0">
       </div>
     </div>
 
-    <button class="btn-act btn-camera" style="width:100%; margin-top:6px;" onclick="saveBill()">✓ बिल सुरक्षित करें</button>
+    <button class="btn-act btn-camera" style="width:100%; margin-top:8px; padding:12px; font-size:14px;" onclick="saveBill()">✓ Create Purchase (सेव करें)</button>
   </div>
 
-  <!-- भुगतान फॉर्म (Dropdown) -->
+  <!-- Record Payment Out Form -->
   <div class="form-box" id="payForm">
     <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-      <h3 style="font-size:15px;">💰 सप्लायर को भुगतान दर्ज करें</h3>
-      <button onclick="document.getElementById('payForm').style.display='none'" style="border:none; background:none; font-size:16px;">✕</button>
+      <h3 style="font-size:15px; color:#15803d;">💰 Record Payment Out</h3>
+      <button onclick="document.getElementById('payForm').style.display='none'" style="border:none; background:none; font-size:18px;">✕</button>
     </div>
     
     <div class="form-group">
-      <label>सप्लायर चुनें *</label>
+      <label>सप्लायर फर्म *</label>
       <select id="pPartySelect" onchange="checkCustomSupplier(this.value)">
       </select>
     </div>
 
     <div class="form-group" id="customSupplierDiv" style="display:none;">
-      <label>नया सप्लायर नाम दर्ज करें *</label>
-      <input type="text" id="pPartyCustom" placeholder="नया सप्लायर फर्म नाम">
+      <label>नया सप्लायर दर्ज करें</label>
+      <input type="text" id="pPartyCustom" placeholder="सप्लायर का नाम">
     </div>
 
     <div class="form-group">
@@ -189,22 +199,24 @@
       <input type="number" id="pAmt" placeholder="0.00" style="font-weight:800; font-size:16px;">
     </div>
     <div class="form-group">
-      <label>माध्यम</label>
+      <label>Payment Mode</label>
       <select id="pMode">
-        <option value="Bank">बैंक ट्रांसफर (RTGS/NEFT)</option>
-        <option value="UPI">UPI / PhonePe</option>
-        <option value="Cheque">चेक</option>
-        <option value="Cash">नकद (Cash)</option>
+        <option value="Bank Transfer">Bank Transfer (RTGS / NEFT)</option>
+        <option value="UPI">UPI / PhonePe / GPay</option>
+        <option value="Cheque">Cheque</option>
+        <option value="Cash">Cash</option>
       </select>
     </div>
-    <button class="btn-act btn-pay" style="width:100%;" onclick="savePayment()">✓ भुगतान सेव करें</button>
+    <button class="btn-act" style="background:var(--success); width:100%; padding:12px; font-size:14px;" onclick="savePayment()">✓ Save Payment</button>
   </div>
 
+  <!-- Tabs Navigation -->
   <div class="tabs">
-    <button class="tab active" id="tBills" onclick="toggleView('bills')">हालिया बिल</button>
-    <button class="tab" id="tLedger" onclick="toggleView('ledger')">सप्लायर खाता (देनदारी)</button>
+    <button class="tab active" id="tBills" onclick="toggleView('bills')">Transactions (पर्चियां)</button>
+    <button class="tab" id="tLedger" onclick="toggleView('ledger')">Parties (सप्लायर खाता)</button>
   </div>
 
+  <!-- Lists -->
   <div class="card-list" id="vBills"></div>
   <div class="card-list" id="vLedger" style="display:none;"></div>
 
@@ -231,12 +243,11 @@
       if (!file) return;
 
       if (!apiKey) {
-        alert("कृपया पहले ऊपर '🔑 AI Key' बटन दबाकर अपनी Gemini API Key सेट करें।");
+        alert("कृपया पहले ऊपर '🔑 AI Key' बटन दबाकर अपनी Gemini API Key दर्ज करें।");
         setApiKey();
         if (!apiKey) return;
       }
 
-      // Purana form chupayein
       document.getElementById('billForm').style.display = 'none';
       const loader = document.getElementById('aiLoader');
       const statusText = document.getElementById('loaderStatus');
@@ -245,18 +256,18 @@
       try {
         let base64Image = "";
         if (type === 'pdf') {
-          statusText.innerText = "PDF को प्रोसेस किया जा रहा है...";
+          statusText.innerText = "PDF पेज कन्वर्ट हो रहा है...";
           base64Image = await convertPdfToImageBase64(file);
         } else {
           statusText.innerText = "फोटो कंप्रेस हो रही है...";
           base64Image = await compressImageToBase64(file);
         }
 
-        statusText.innerText = "Gemini 3.8 AI बिल पढ़ रहा है...";
+        statusText.innerText = "Gemini 3.8 Purchase Details निकाल रहा है...";
         await callGeminiAI(base64Image);
       } catch (err) {
         loader.style.display = 'none';
-        alert("स्कैन एरर: " + err.message);
+        alert("त्रुटि: " + err.message);
       } finally {
         e.target.value = '';
       }
@@ -286,27 +297,26 @@
           img.src = e.target.result;
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const scale = 900 / Math.max(img.width, img.height);
+            const scale = 950 / Math.max(img.width, img.height);
             canvas.width = img.width * (scale < 1 ? scale : 1);
             canvas.height = img.height * (scale < 1 ? scale : 1);
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.75).split(',')[1]);
+            resolve(canvas.toDataURL('image/jpeg', 0.78).split(',')[1]);
           };
           img.onerror = () => reject(new Error("फोटो लोड नहीं हो सकी"));
         };
-        reader.onerror = () => reject(new Error("फाइल पढ़ने में समस्या"));
+        reader.onerror = () => reject(new Error("फाइल नहीं पढ़ी जा सकी"));
       });
     }
 
     async function callGeminiAI(base64Data) {
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
 
-      const promptText = `Extract invoice details from this image. Output ONLY RAW JSON (no markdown backticks, no words outside JSON).
-Structure:
+      const promptText = `Analyze this wholesale textile purchase invoice (like MyBillBook OCR).
+Extract the following into STRICT JSON ONLY (no markdown formatting, no backticks):
 {
-  "supplierName": "Seller or company at top",
-  "buyerName": "Buyer or customer name",
+  "supplierName": "Full firm name of seller/supplier at top header",
   "invoiceNo": "Invoice/Bill number",
   "date": "YYYY-MM-DD",
   "items": [{"name": "Item description", "qty": 1, "rate": 0, "total": 0}],
@@ -330,7 +340,7 @@ Structure:
       const resJson = await res.json();
 
       if (resJson.error) {
-        throw new Error("Google API Error: " + resJson.error.message);
+        throw new Error("Google AI Error: " + resJson.error.message);
       }
 
       if (resJson.candidates && resJson.candidates[0].content) {
@@ -341,45 +351,33 @@ Structure:
         try {
           parsed = JSON.parse(text);
         } catch (pe) {
-          // JSON string cleaning
-          const start = text.indexOf('{');
-          const end = text.lastIndexOf('}');
-          if (start !== -1 && end !== -1) {
-            try {
-              parsed = JSON.parse(text.substring(start, end + 1));
-            } catch(e) {}
+          const s = text.indexOf('{');
+          const e = text.lastIndexOf('}');
+          if (s !== -1 && e !== -1) {
+            try { parsed = JSON.parse(text.substring(s, e + 1)); } catch(err) {}
           }
         }
 
         if (parsed) {
           openBillFormWithData(parsed);
         } else {
-          // Fallback parsing
+          // Manual Fallback Regex
+          const supp = text.match(/supplier(?:Name)?["':\s*]+([^\n",*]+)/i);
+          const inv = text.match(/invoice(?:No)?["':\s*]+([^\n",*]+)/i);
+          const tot = text.match(/grandTotal["':\s*]+([\d,.]+)/i) || text.match(/Total(?: Amount)?[:\s*]+[₹Rs.\s]*([\d,.]+)/i);
           openBillFormWithData({
-            supplierName: extractRegex(text, /supplier(?:Name)?["':\s*]+([^\n",*]+)/i),
-            buyerName: extractRegex(text, /buyer(?:Name)?["':\s*]+([^\n",*]+)/i),
-            invoiceNo: extractRegex(text, /invoice(?:No)?["':\s*]+([^\n",*]+)/i),
-            grandTotal: extractAmount(text)
+            supplierName: supp ? supp[1].trim() : '',
+            invoiceNo: inv ? inv[1].trim() : '',
+            grandTotal: tot ? parseFloat(tot[1].replace(/,/g, '')) : 0
           });
         }
       } else {
-        throw new Error("AI ne image se koi text return nahi kiya.");
+        throw new Error("AI ने कोई डेटा वापस नहीं भेजा।");
       }
-    }
-
-    function extractRegex(text, regex) {
-      const match = text.match(regex);
-      return match ? match[1].trim() : '';
-    }
-
-    function extractAmount(text) {
-      const match = text.match(/grandTotal["':\s*]+([\d,.]+)/i) || text.match(/Total(?: Amount)?[:\s*]+[₹Rs.\s]*([\d,.]+)/i);
-      return match ? parseFloat(match[1].replace(/,/g, '')) : 0;
     }
 
     function openBillFormWithData(d) {
       document.getElementById('bSupplier').value = d.supplierName || '';
-      document.getElementById('bBuyer').value = d.buyerName || '';
       document.getElementById('bNo').value = d.invoiceNo || 'B-' + Math.floor(100 + Math.random()*900);
       document.getElementById('bDate').value = d.date || new Date().toISOString().split('T')[0];
       document.getElementById('bTotal').value = d.grandTotal || 0;
@@ -410,12 +408,12 @@ Structure:
     }
 
     function saveBill() {
-      const supplier = document.getElementById('bSupplier').value.trim() || document.getElementById('bBuyer').value.trim();
+      const supplier = document.getElementById('bSupplier').value.trim();
       const total = parseFloat(document.getElementById('bTotal').value) || 0;
       const adv = parseFloat(document.getElementById('bAdvance').value) || 0;
 
-      if (!supplier) return alert("कृपया सप्लायर का नाम लिखें");
-      if (total <= 0) return alert("बिल की कुल रकम लिखें");
+      if (!supplier) return alert("सप्लायर फर्म का नाम दर्ज करें");
+      if (total <= 0) return alert("वैध कुल बिल रकम लिखें");
 
       bills = JSON.parse(localStorage.getItem('vm_bills') || '[]');
       payments = JSON.parse(localStorage.getItem('vm_payments') || '[]');
@@ -423,10 +421,10 @@ Structure:
       bills.unshift({
         id: 'B_' + Date.now(),
         supplier: supplier,
-        buyer: document.getElementById('bBuyer').value.trim(),
         no: document.getElementById('bNo').value,
         date: document.getElementById('bDate').value,
-        total: total
+        total: total,
+        paid: adv
       });
 
       if (adv > 0) {
@@ -444,47 +442,38 @@ Structure:
 
       document.getElementById('billForm').style.display = 'none';
       render();
-      alert("✓ नया बिल सुरक्षित हो गया!");
+      alert("✓ Purchase Invoice सुरक्षित हो गई!");
     }
 
-    function showPayForm() {
+    // Direct MyBillBook Style "Record Payment Out"
+    function recordPaymentOut(supplierName, remainingAmt) {
       bills = JSON.parse(localStorage.getItem('vm_bills') || '[]');
       const uniqueSuppliers = [...new Set(bills.map(b => b.supplier).filter(Boolean))];
       
       const select = document.getElementById('pPartySelect');
-      select.innerHTML = '<option value="">-- सप्लायर चुनें --</option>';
+      select.innerHTML = '';
       uniqueSuppliers.forEach(name => {
-        select.innerHTML += `<option value="${name}">${name}</option>`;
+        select.innerHTML += `<option value="${name}" ${name === supplierName ? 'selected' : ''}>${name}</option>`;
       });
       select.innerHTML += '<option value="__NEW__">➕ नया सप्लायर लिखें...</option>';
 
       document.getElementById('customSupplierDiv').style.display = 'none';
-      document.getElementById('pPartyCustom').value = '';
-      document.getElementById('pAmt').value = '';
+      document.getElementById('pAmt').value = remainingAmt > 0 ? remainingAmt : '';
       document.getElementById('payForm').style.display = 'block';
       window.scrollTo({ top: 320, behavior: 'smooth' });
     }
 
     function checkCustomSupplier(val) {
-      const customDiv = document.getElementById('customSupplierDiv');
-      if (val === '__NEW__') {
-        customDiv.style.display = 'block';
-      } else {
-        customDiv.style.display = 'none';
-      }
+      document.getElementById('customSupplierDiv').style.display = val === '__NEW__' ? 'block' : 'none';
     }
 
     function savePayment() {
       const selectVal = document.getElementById('pPartySelect').value;
-      let finalParty = selectVal;
-
-      if (selectVal === '__NEW__') {
-        finalParty = document.getElementById('pPartyCustom').value.trim();
-      }
-
+      const finalParty = selectVal === '__NEW__' ? document.getElementById('pPartyCustom').value.trim() : selectVal;
       const amt = parseFloat(document.getElementById('pAmt').value) || 0;
-      if (!finalParty) return alert("कृपया सप्लायर चुनें या नाम लिखें");
-      if (amt <= 0) return alert("वैध रकम दर्ज करें");
+
+      if (!finalParty) return alert("सप्लायर चुनें या नाम लिखें");
+      if (amt <= 0) return alert("वैध भुगतान रकम लिखें");
 
       payments = JSON.parse(localStorage.getItem('vm_payments') || '[]');
       payments.unshift({
@@ -498,7 +487,7 @@ Structure:
       localStorage.setItem('vm_payments', JSON.stringify(payments));
       document.getElementById('payForm').style.display = 'none';
       render();
-      alert("✓ भुगतान दर्ज हो गया!");
+      alert("✓ Payment Out दर्ज हो गया!");
     }
 
     function toggleView(v) {
@@ -521,22 +510,14 @@ Structure:
 
       let bSum = bills.reduce((s, b) => s + b.total, 0);
       let pSum = payments.reduce((s, p) => s + p.amt, 0);
+      let dueSum = Math.max(0, bSum - pSum);
 
       document.getElementById('dashBilled').innerText = '₹' + bSum.toLocaleString('en-IN');
       document.getElementById('dashPaid').innerText = '₹' + pSum.toLocaleString('en-IN');
-      document.getElementById('dashDue').innerText = '₹' + Math.max(0, bSum - pSum).toLocaleString('en-IN');
+      document.getElementById('dashDue').innerText = '₹' + dueSum.toLocaleString('en-IN');
       document.getElementById('dashCount').innerText = bills.length;
 
-      document.getElementById('vBills').innerHTML = bills.map(b => `
-        <div class="row-card">
-          <div>
-            <h4>🏢 ${b.supplier}</h4>
-            <p>बिल नं: ${b.no} | खरीदार: ${b.buyer || 'Self'} | तारीख: ${b.date}</p>
-          </div>
-          <div class="amt">₹${b.total.toLocaleString('en-IN')}</div>
-        </div>
-      `).join('') || '<p style="text-align:center; color:gray; padding:20px;">कोई बिल नहीं है</p>';
-
+      // Party-wise Ledger Calculation
       const parties = {};
       bills.forEach(b => {
         parties[b.supplier] = parties[b.supplier] || { b: 0, p: 0 };
@@ -547,20 +528,55 @@ Structure:
         parties[p.party].p += p.amt;
       });
 
+      // Transactions View (Matching MyBillBook)
+      document.getElementById('vBills').innerHTML = bills.map(b => {
+        const partyBalance = parties[b.supplier] ? Math.max(0, parties[b.supplier].b - parties[b.supplier].p) : b.total;
+        const isPaid = partyBalance === 0;
+
+        return `
+          <div class="txn-card">
+            <div class="txn-head">
+              <h4>${b.supplier}</h4>
+              <div class="txn-amt">
+                <h3>₹${b.total.toLocaleString('en-IN')}</h3>
+                <span class="badge ${isPaid ? 'badge-paid' : 'badge-unpaid'}">
+                  ${isPaid ? 'Paid' : 'Unpaid'}
+                </span>
+              </div>
+            </div>
+            <p class="txn-sub">Purchase Invoice #${b.no} • ${b.date}</p>
+            ${!isPaid ? `
+              <div class="btn-rec-pay" onclick="recordPaymentOut('${b.supplier.replace(/'/g, "\\'")}', ${partyBalance})">
+                ₹ Record Payment Out
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('') || '<p style="text-align:center; color:gray; padding:25px;">कोई पर्ची / बिल नहीं है</p>';
+
+      // Parties Ledger View
       document.getElementById('vLedger').innerHTML = Object.keys(parties).map(k => {
         const due = parties[k].b - parties[k].p;
         return `
-          <div class="row-card">
-            <div>
-              <h4>🏢 ${k}</h4>
-              <p>कुल खरीद: ₹${parties[k].b.toLocaleString('en-IN')} | चुकाया: ₹${parties[k].p.toLocaleString('en-IN')}</p>
+          <div class="txn-card">
+            <div class="txn-head">
+              <h4>${k}</h4>
+              <div class="txn-amt">
+                <h3 style="color:${due > 0 ? 'var(--danger)' : 'var(--success)'};">
+                  ${due > 0 ? '₹' + due.toLocaleString('en-IN') : '₹0'}
+                </h3>
+                <small style="color:var(--muted); font-size:10px;">${due > 0 ? 'To Pay (देना बाकी)' : 'All Clear ✓'}</small>
+              </div>
             </div>
-            <div class="amt" style="color:${due > 0 ? 'var(--danger)' : 'var(--success)'};">
-              ${due > 0 ? 'देना बाकी: ₹' + due.toLocaleString('en-IN') : 'चुका दिया ✓'}
-            </div>
+            <p class="txn-sub">कुल खरीद: ₹${parties[k].b.toLocaleString('en-IN')} | कुल चुकाया: ₹${parties[k].p.toLocaleString('en-IN')}</p>
+            ${due > 0 ? `
+              <div class="btn-rec-pay" onclick="recordPaymentOut('${k.replace(/'/g, "\\'")}', ${due})">
+                ₹ Record Payment Out
+              </div>
+            ` : ''}
           </div>
         `;
-      }).join('') || '<p style="text-align:center; color:gray; padding:20px;">खाते में कोई सप्लायर नहीं है</p>';
+      }).join('') || '<p style="text-align:center; color:gray; padding:25px;">खाते में कोई सप्लायर नहीं है</p>';
     }
 
     render();
