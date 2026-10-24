@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retail Billing & Textile ERP - Version 2</title>
+    <title>Textile Retail Billing & Payment System</title>
+    <!-- Lightweight Tesseract CDN for Direct OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
         :root {
-            --primary: #0f172a;
-            --primary-accent: #2563eb;
-            --bg: #f1f5f9;
+            --primary: #1e3a8a;
+            --primary-hover: #1e40af;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
             --text: #1e293b;
             --text-light: #64748b;
             --border: #cbd5e1;
-            --success: #15803d;
-            --danger: #b91c1c;
+            --success: #16a34a;
+            --danger: #dc2626;
         }
 
         * {
@@ -27,11 +29,11 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            padding: 16px;
+            padding: 14px;
         }
 
         .container {
-            max-width: 1050px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -40,22 +42,22 @@
             justify-content: space-between;
             align-items: center;
             background: #ffffff;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border-radius: 10px;
-            margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            border-left: 5px solid var(--primary-accent);
+            margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border-left: 5px solid var(--primary);
         }
 
         .header h1 {
-            font-size: 20px;
+            font-size: 19px;
             color: var(--primary);
         }
 
         .tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .tab-btn {
@@ -65,41 +67,44 @@
             background: #ffffff;
             color: var(--text);
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13.5px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .tab-btn.active {
-            background: var(--primary-accent);
+            background: var(--primary);
             color: #ffffff;
-            border-color: var(--primary-accent);
+            border-color: var(--primary);
         }
 
         .card {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 18px;
             border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
             border: 1px solid var(--border);
         }
 
-        .section-subhead {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary-accent);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            border-bottom: 1px dashed var(--border);
-            padding-bottom: 6px;
+        /* V1 Style Direct Scan Box */
+        .scan-box {
+            background: #eff6ff;
+            border: 2px dashed #93c5fd;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
-        .form-grid-4 {
+        .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 12px;
             margin-bottom: 16px;
         }
@@ -127,57 +132,33 @@
 
         .form-group input:focus, 
         .form-group select:focus {
-            border-color: var(--primary-accent);
+            border-color: var(--primary);
         }
 
         .table-responsive {
             overflow-x: auto;
-            margin: 16px 0;
+            margin: 14px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12.5px;
+            font-size: 13px;
         }
 
         th, td {
             padding: 8px 10px;
             border: 1px solid var(--border);
-            vertical-align: top;
+            text-align: left;
         }
 
         th {
             background: #f8fafc;
             font-weight: 600;
-            text-align: left;
-        }
-
-        .than-input-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            background: #f8fafc;
-            padding: 6px;
-            border-radius: 4px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .than-row {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .than-row input {
-            padding: 4px 6px;
-            font-size: 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
         }
 
         .btn {
-            background: var(--primary-accent);
+            background: var(--primary);
             color: #ffffff;
             border: none;
             padding: 8px 16px;
@@ -187,51 +168,28 @@
             font-size: 13px;
         }
 
-        .btn-sm {
-            padding: 4px 8px;
-            font-size: 11px;
-        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-sm { padding: 4px 8px; font-size: 11px; }
+        .btn-outline { background: #ffffff; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: #f0fdf4; }
+        .btn-cancel { background: #e2e8f0; color: #334155; border: none; }
 
-        .btn-outline {
-            background: #ffffff;
-            border: 1px solid var(--primary-accent);
-            color: var(--primary-accent);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: #ffffff;
-            border: none;
-        }
-
-        .bill-calc-summary {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 20px;
+        .summary-box {
+            display: flex;
+            justify-content: flex-end;
             margin-top: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
         }
 
-        .summary-card {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 13px;
-        }
-
-        .summary-line {
+        .action-bar {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
-        }
-
-        .summary-line.total {
-            font-weight: 700;
-            font-size: 15px;
-            border-top: 1px solid #cbd5e1;
-            margin-top: 6px;
-            padding-top: 6px;
-            color: var(--primary);
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
         }
 
         .modal {
@@ -248,19 +206,24 @@
         .modal-content {
             background: #ffffff;
             border-radius: 10px;
-            max-width: 520px;
+            max-width: 480px;
             width: 90%;
             padding: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 2000;
+            transition: all 0.3s;
         }
 
         .hidden { display: none; }
@@ -271,23 +234,32 @@
 <div class="container">
     <div class="header">
         <div>
-            <h1>Textile Retail Billing & Payment ERP</h1>
-            <p style="font-size: 12px; color: var(--text-light);">Version 2.0 (Fabric Cut Breakdown, Transport & Bank Details)</p>
+            <h1>Textile Retail Billing & Payment</h1>
+            <p style="font-size: 12px; color: var(--text-light);">V1 Fast OCR Core + Payment Date & A/C View</p>
         </div>
-        <span style="font-size: 12px; background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 20px; font-weight: 600;">Active ERP</span>
+        <button class="btn btn-sm btn-outline" onclick="resetBillForm()">+ Naya Bill</button>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('billing')">1. Textile Bill Entry</button>
+        <button class="tab-btn active" onclick="switchTab('billing')">1. Bill Entry</button>
         <button class="tab-btn" onclick="switchTab('payment')">2. Payment Entry</button>
-        <button class="tab-btn" onclick="switchTab('history')">3. Party Ledgers & Records</button>
+        <button class="tab-btn" onclick="switchTab('history')">3. Ledgers & Records</button>
     </div>
 
     <!-- 1. Bill Entry Section -->
     <div id="billing-section" class="card">
-        <div class="section-subhead">Invoice & Transport Details</div>
-        <div class="form-grid-4">
+        <!-- V1 Fast Direct Camera/Image Scanner -->
+        <div class="scan-box">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <label style="font-weight:700; font-size:12.5px; color:var(--primary);">📷 Bill Photo Scan:</label>
+                <input type="file" id="scan-file" accept="image/*" capture="environment" style="font-size:12px;">
+                <button class="btn btn-sm" onclick="startV1Scan()">Scan Now</button>
+            </div>
+            <span id="scan-status" style="font-size:12px; font-weight:600; color:var(--primary);">Koi bhi bill photo select karein</span>
+        </div>
+
+        <div class="form-grid">
             <div class="form-group">
                 <label>Invoice Number</label>
                 <input type="text" id="bill-inv-no" placeholder="Ex: 26-27/0273">
@@ -297,133 +269,62 @@
                 <input type="date" id="bill-date">
             </div>
             <div class="form-group">
-                <label>Despatch Doc / Case No.</label>
-                <input type="text" id="bill-case-no" placeholder="Ex: CASE NO-2219">
+                <label>Party / Supplier Name</label>
+                <input type="text" id="bill-party" placeholder="Party Name">
             </div>
             <div class="form-group">
-                <label>Despatched Through (Transporter)</label>
-                <input type="text" id="bill-transport" placeholder="Ex: Bombay Goods Garage">
-            </div>
-            <div class="form-group">
-                <label>LR No. & Date</label>
-                <input type="text" id="bill-lr-info" placeholder="LR No / Date">
-            </div>
-            <div class="form-group">
-                <label>Supplier / Seller Name</label>
-                <input type="text" id="bill-supplier" placeholder="Ex: Janta Cloth Syndicate">
-            </div>
-            <div class="form-group">
-                <label>Party GSTIN</label>
-                <input type="text" id="bill-gstin" placeholder="Ex: 22AACFJ0688H1ZJ">
-            </div>
-            <div class="form-group">
-                <label>Buyer / Billing To</label>
-                <input type="text" id="bill-buyer" placeholder="Ex: Fashion Club Surajpur">
+                <label>GSTIN</label>
+                <input type="text" id="bill-gstin" placeholder="GSTIN No.">
             </div>
         </div>
 
-        <div class="section-subhead">Fabric Items & Than Breakdown</div>
         <div class="table-responsive">
             <table id="bill-items-table">
                 <thead>
                     <tr>
-                        <th style="width: 25%;">Item Description</th>
-                        <th style="width: 10%;">HSN</th>
-                        <th style="width: 25%;">Than / Cut Breakdown (Mtr x Than)</th>
-                        <th style="width: 10%;">Total Qty</th>
-                        <th style="width: 10%;">Rate (₹)</th>
-                        <th style="width: 8%;">Disc %</th>
-                        <th style="width: 12%;">Amount (₹)</th>
-                        <th></th>
+                        <th style="width: 45%;">Item Description</th>
+                        <th style="width: 15%;">Unit</th>
+                        <th style="width: 15%;">Quantity</th>
+                        <th style="width: 15%;">Rate (₹)</th>
+                        <th style="width: 15%;">Amount (₹)</th>
+                        <th style="width: 5%;"></th>
                     </tr>
                 </thead>
-                <tbody id="bill-items-body">
-                    <!-- Dynamic Item Row -->
-                </tbody>
+                <tbody id="bill-items-body"></tbody>
             </table>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="addBillRow()">+ Add Fabric Item</button>
+        <button class="btn btn-outline btn-sm" onclick="addBillRow()">+ Add Item</button>
 
-        <!-- Calculation & Bank Section -->
-        <div class="bill-calc-summary">
-            <div class="summary-card">
-                <div style="font-weight: 700; margin-bottom: 8px; color: var(--primary);">Supplier Bank Details (For Settlement)</div>
-                <div class="form-grid-4" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
-                    <div class="form-group">
-                        <label>Bank Name</label>
-                        <input type="text" id="sup-bank-name" placeholder="State Bank of India">
-                    </div>
-                    <div class="form-group">
-                        <label>Account Number</label>
-                        <input type="text" id="sup-acc-no" placeholder="43122286276">
-                    </div>
-                    <div class="form-group">
-                        <label>IFSC Code</label>
-                        <input type="text" id="sup-ifsc" placeholder="SBIN0006085">
-                    </div>
-                    <div class="form-group">
-                        <label>Branch</label>
-                        <input type="text" id="sup-branch" placeholder="Pandri Tarai Raipur">
-                    </div>
-                </div>
-            </div>
-
-            <div class="summary-card">
-                <div class="summary-line">
-                    <span>Total Fabric Meters:</span>
-                    <strong id="calc-total-meters">0.00 MTR</strong>
-                </div>
-                <div class="summary-line">
-                    <span>Items Taxable Value:</span>
-                    <span id="calc-taxable-val">₹0.00</span>
-                </div>
-                <div class="summary-line" style="align-items: center;">
-                    <span>Freight & Exp (₹):</span>
-                    <input type="number" id="calc-freight" value="0.00" oninput="calculateBillTotal()" style="width: 85px; padding: 2px 4px; text-align: right;">
-                </div>
-                <div class="summary-line">
-                    <span>CGST (2.5%):</span>
-                    <span id="calc-cgst">₹0.00</span>
-                </div>
-                <div class="summary-line">
-                    <span>SGST (2.5%):</span>
-                    <span id="calc-sgst">₹0.00</span>
-                </div>
-                <div class="summary-line" style="align-items: center;">
-                    <span>Round Off (+/-):</span>
-                    <input type="number" step="0.01" id="calc-roundoff" value="0.00" oninput="calculateBillTotal()" style="width: 75px; padding: 2px 4px; text-align: right;">
-                </div>
-                <div class="summary-line total">
-                    <span>Grand Total:</span>
-                    <span id="calc-grand-total">₹0.00</span>
-                </div>
-            </div>
+        <div class="summary-box">
+            <span>Total Bill Amount: ₹<span id="bill-grand-total">0.00</span></span>
         </div>
 
-        <div style="margin-top: 16px; text-align: right;">
-            <button class="btn" style="padding: 10px 24px; font-size: 14px;" onclick="saveBill()">Save Invoice Entry</button>
+        <div class="action-bar">
+            <button class="btn btn-cancel" onclick="resetBillForm()">Cancel / Clear</button>
+            <button class="btn" onclick="saveBill()">Save Invoice</button>
         </div>
     </div>
 
-    <!-- 2. Payment Entry Section -->
+    <!-- 2. Payment Entry Section (With Date & A/C View) -->
     <div id="payment-section" class="card hidden">
-        <div class="section-subhead">Vendor / Party Payment Entry</div>
-        <div class="form-grid-4">
+        <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--primary);">Payment Entry</h3>
+        <div class="form-grid">
             <div class="form-group">
                 <label>Payment Date</label>
                 <input type="date" id="pay-date">
             </div>
             <div class="form-group">
-                <label>Select Party / Beneficiary</label>
-                <input type="text" id="pay-party" placeholder="Party Name (Ex: Janta Cloth Syndicate)">
+                <label>Select Party / Supplier</label>
+                <input type="text" id="pay-party" placeholder="Party Name" list="parties-list">
+                <datalist id="parties-list"></datalist>
             </div>
             <div class="form-group">
                 <label>Payment Mode</label>
                 <select id="pay-mode">
-                    <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
-                    <option value="UPI / Online">UPI / Online</option>
-                    <option value="Cheque">Cheque</option>
                     <option value="Cash">Cash</option>
+                    <option value="Bank / UPI">Bank / UPI</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="NEFT/RTGS">NEFT / RTGS</option>
                 </select>
             </div>
             <div class="form-group">
@@ -431,87 +332,85 @@
                 <input type="number" id="pay-amount" placeholder="0.00">
             </div>
             <div class="form-group">
-                <label>Target Bank / Account</label>
-                <input type="text" id="pay-acc-ref" placeholder="A/C No. or UTR No.">
-            </div>
-            <div class="form-group">
-                <label>Remarks / Cheque No.</label>
-                <input type="text" id="pay-remarks" placeholder="Notes">
+                <label>Remarks / Ref No.</label>
+                <input type="text" id="pay-note" placeholder="Cheque No / UTR / Remarks">
             </div>
         </div>
 
-        <div style="margin-top: 16px; text-align: right;">
-            <button class="btn" onclick="savePayment()">Record Payment & View Account</button>
+        <div style="margin-top: 14px; text-align: right;">
+            <button class="btn" onclick="savePayment()">Save Payment & View A/C</button>
         </div>
     </div>
 
-    <!-- 3. Records / History Section -->
+    <!-- 3. Records / Ledger Section -->
     <div id="history-section" class="card hidden">
-        <div class="section-subhead">All Transactions & Ledger Records</div>
+        <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--primary);">Ledger Records & Transactions</h3>
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
                         <th>Date</th>
                         <th>Type</th>
-                        <th>Party / Supplier</th>
-                        <th>Particulars / Details</th>
+                        <th>Party Name</th>
+                        <th>Mode / Particulars</th>
                         <th>Debit / Paid (₹)</th>
                         <th>Credit / Billed (₹)</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="records-table-body">
-                    <tr><td colspan="7" style="text-align: center; color: var(--text-light);">Koi record mojud nahi hai.</td></tr>
+                    <tr><td colspan="7" style="text-align:center; color: var(--text-light);">Koi transaction record nahi hai.</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Account Details Popup Modal -->
+<!-- Instant Account Details Modal -->
 <div id="accountModal" class="modal hidden">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3 style="font-size: 16px; color: var(--primary);" id="modal-party-name">Party Account Details</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:12px;">
+            <h3 style="font-size: 15px; color: var(--primary);" id="modal-title">Account Summary</h3>
             <button onclick="closeModal()" style="border:none; background:none; font-size:18px; cursor:pointer;">&times;</button>
         </div>
-        <div style="font-size: 13px; line-height: 1.6;">
-            <div style="background: #f8fafc; padding: 10px; border-radius: 6px; margin-bottom: 12px; border: 1px solid var(--border);">
-                <div><strong>Bank Name:</strong> <span id="modal-bank-name">N/A</span></div>
-                <div><strong>A/C No:</strong> <span id="modal-acc-no">N/A</span></div>
-                <div><strong>IFSC:</strong> <span id="modal-ifsc">N/A</span></div>
-                <div><strong>Branch:</strong> <span id="modal-branch">N/A</span></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding: 6px 0;">
+        <div style="font-size: 13.5px; line-height: 1.6;">
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f1f5f9;">
                 <span>Total Billed Amount:</span>
-                <strong id="modal-total-billed">₹0.00</strong>
+                <strong id="modal-billed">₹0.00</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding: 6px 0; color: var(--success);">
+            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f1f5f9; color:var(--success);">
                 <span>Total Paid Amount:</span>
-                <strong id="modal-total-paid">₹0.00</strong>
+                <strong id="modal-paid">₹0.00</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; color: var(--danger); font-weight: 700;">
-                <span>Outstanding Balance:</span>
+            <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:15px; font-weight:700; color:var(--danger);">
+                <span>Remaining Balance:</span>
                 <span id="modal-balance">₹0.00</span>
             </div>
         </div>
-        <div style="text-align: right; margin-top: 16px;">
-            <button class="btn btn-outline" onclick="closeModal()">Close</button>
+        <div style="text-align: right; margin-top: 14px;">
+            <button class="btn btn-outline btn-sm" onclick="closeModal()">Close</button>
         </div>
     </div>
 </div>
 
+<div id="toast" class="toast hidden"></div>
+
 <script>
     let dbRecords = [];
-    let partyBankMaster = {};
 
     window.onload = function() {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('bill-date').value = today;
         document.getElementById('pay-date').value = today;
-        addBillRow();
+        resetBillForm();
     };
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 2800);
+    }
 
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -525,6 +424,7 @@
         } else if(tab === 'payment') {
             document.querySelectorAll('.tab-btn')[1].classList.add('active');
             document.getElementById('payment-section').classList.remove('hidden');
+            updatePartyList();
         } else if(tab === 'history') {
             document.querySelectorAll('.tab-btn')[2].classList.add('active');
             document.getElementById('history-section').classList.remove('hidden');
@@ -532,180 +432,188 @@
         }
     }
 
-    function addBillRow() {
+    // --- V1 Pure Lightweight OCR Engine ---
+    function startV1Scan() {
+        const fileInput = document.getElementById('scan-file');
+        const status = document.getElementById('scan-status');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            showToast('Kripya bill photo select karein');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        status.innerText = 'Scanning...';
+
+        Tesseract.recognize(
+            file,
+            'eng',
+            { logger: m => { if (m.status === 'recognizing text') status.innerText = `Scanning: ${Math.round(m.progress * 100)}%`; } }
+        ).then(({ data: { text } }) => {
+            status.innerText = 'Scan Done!';
+            processV1Text(text);
+        }).catch(err => {
+            console.error(err);
+            status.innerText = 'Scan me issue aaya, manual check karein';
+        });
+    }
+
+    function processV1Text(text) {
+        // Simple direct regexes like V1
+        const inv = text.match(/(?:Invoice\s*No|Bill\s*No|STC\/)[.:\s]*([A-Za-z0-9\/-]+)/i);
+        if (inv) document.getElementById('bill-inv-no').value = inv[1];
+
+        const gst = text.match(/[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}/);
+        if (gst) document.getElementById('bill-gstin').value = gst[0];
+
+        // Party / Supplier detection
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 3);
+        for(let l of lines) {
+            if (/TRADING|CLOTH|SYNDICATE|SAREE|MILLS|TEXTILE|ENTERPRISES/i.test(l) && !/TAX|INVOICE|ORIGINAL/i.test(l)) {
+                document.getElementById('bill-party').value = l.replace(/[^A-Za-z\s().-]/g, '').trim();
+                break;
+            }
+        }
+
+        // Detect items simply by lines having numbers
+        const itemRows = [];
+        lines.forEach(line => {
+            const m = line.match(/^([A-Za-z0-9\s/()-]+?)\s+(\d+(?:\.\d+)?)\s*(PCS|MTR|BOX)?\s+(\d+(?:\.\d+)?)/i);
+            if (m && !/Total|GST|Round/i.test(m[1])) {
+                itemRows.push({ name: m[1].trim(), unit: m[3] || 'PCS', qty: m[2], rate: m[4] });
+            }
+        });
+
+        if (itemRows.length > 0) {
+            document.getElementById('bill-items-body').innerHTML = '';
+            itemRows.forEach(item => addBillRow(item));
+        }
+
+        calculateTotal();
+        showToast('Bill data autofill ho gaya');
+    }
+
+    // --- Dynamic Table & Totals ---
+    function addBillRow(data = null) {
         const tbody = document.getElementById('bill-items-body');
         const tr = document.createElement('tr');
         tr.className = 'item-row';
         tr.innerHTML = `
-            <td><input type="text" class="item-name" placeholder="Ex: BSL -SOFTWEAR PLUS" style="width:100%;"></td>
-            <td><input type="text" class="item-hsn" placeholder="551511" style="width:100%;"></td>
+            <td><input type="text" class="item-name" value="${data ? data.name : ''}" placeholder="Item Description" style="width:100%; padding:6px;"></td>
             <td>
-                <div class="than-input-wrap">
-                    <div class="than-row">
-                        <input type="number" placeholder="Mtr" class="cut-mtr" oninput="calculateBillTotal()" style="width:50%;">
-                        <input type="number" placeholder="Than" class="cut-than" oninput="calculateBillTotal()" style="width:50%;">
-                    </div>
-                </div>
-                <button class="btn btn-outline btn-sm" style="margin-top:4px;" onclick="addThanCut(this)">+ Than</button>
+                <select class="item-unit" style="width:100%; padding:6px;">
+                    <option value="PCS" ${data && data.unit === 'PCS' ? 'selected' : ''}>PCS</option>
+                    <option value="MTR" ${data && data.unit === 'MTR' ? 'selected' : ''}>MTR</option>
+                    <option value="SAREE" ${data && data.unit === 'SAREE' ? 'selected' : ''}>SAREE</option>
+                    <option value="SUIT" ${data && data.unit === 'SUIT' ? 'selected' : ''}>SUIT</option>
+                </select>
             </td>
-            <td><input type="number" class="item-total-qty" placeholder="0.00" oninput="calculateBillTotal()" style="width:100%; font-weight:600;"></td>
-            <td><input type="number" class="item-rate" placeholder="0.00" oninput="calculateBillTotal()" style="width:100%;"></td>
-            <td><input type="number" class="item-disc" placeholder="0" oninput="calculateBillTotal()" style="width:100%;"></td>
-            <td><strong class="item-row-amt">0.00</strong></td>
-            <td><button class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>
+            <td><input type="number" class="item-qty" value="${data ? data.qty : ''}" placeholder="0" oninput="calculateTotal()" style="width:100%; padding:6px;"></td>
+            <td><input type="number" class="item-rate" value="${data ? data.rate : ''}" placeholder="0.00" oninput="calculateTotal()" style="width:100%; padding:6px;"></td>
+            <td class="item-amt" style="font-weight:600;">0.00</td>
+            <td><button class="btn btn-cancel btn-sm" onclick="removeRow(this)">X</button></td>
         `;
         tbody.appendChild(tr);
-    }
-
-    function addThanCut(btn) {
-        const wrap = btn.previousElementSibling;
-        const row = document.createElement('div');
-        row.className = 'than-row';
-        row.style.marginTop = '4px';
-        row.innerHTML = `
-            <input type="number" placeholder="Mtr" class="cut-mtr" oninput="calculateBillTotal()" style="width:50%;">
-            <input type="number" placeholder="Than" class="cut-than" oninput="calculateBillTotal()" style="width:50%;">
-        `;
-        wrap.appendChild(row);
+        calculateTotal();
     }
 
     function removeRow(btn) {
         const tbody = document.getElementById('bill-items-body');
-        if(tbody.querySelectorAll('.item-row').length > 1) {
+        if (tbody.rows.length > 1) {
             btn.closest('tr').remove();
-            calculateBillTotal();
+            calculateTotal();
         }
     }
 
-    function calculateBillTotal() {
+    function calculateTotal() {
         const rows = document.querySelectorAll('.item-row');
-        let totalMeters = 0;
-        let taxableValue = 0;
-
+        let total = 0;
         rows.forEach(r => {
-            const cutMtrs = r.querySelectorAll('.cut-mtr');
-            const cutThans = r.querySelectorAll('.cut-than');
-            let rowCalculatedQty = 0;
-
-            for(let i=0; i<cutMtrs.length; i++) {
-                const mtr = parseFloat(cutMtrs[i].value) || 0;
-                const than = parseFloat(cutThans[i].value) || 1;
-                if(mtr > 0) rowCalculatedQty += (mtr * than);
-            }
-
-            const totalQtyInput = r.querySelector('.item-total-qty');
-            if(rowCalculatedQty > 0) {
-                totalQtyInput.value = rowCalculatedQty.toFixed(2);
-            }
-
-            const qty = parseFloat(totalQtyInput.value) || 0;
+            const qty = parseFloat(r.querySelector('.item-qty').value) || 0;
             const rate = parseFloat(r.querySelector('.item-rate').value) || 0;
-            const disc = parseFloat(r.querySelector('.item-disc').value) || 0;
-
-            let rowAmt = qty * rate;
-            if(disc > 0) {
-                rowAmt = rowAmt - (rowAmt * (disc / 100));
-            }
-
-            r.querySelector('.item-row-amt').innerText = rowAmt.toFixed(2);
-            totalMeters += qty;
-            taxableValue += rowAmt;
+            const amt = qty * rate;
+            r.querySelector('.item-amt').innerText = amt.toFixed(2);
+            total += amt;
         });
+        document.getElementById('bill-grand-total').innerText = total.toFixed(2);
+    }
 
-        const freight = parseFloat(document.getElementById('calc-freight').value) || 0;
-        const netTaxable = taxableValue + freight;
-        const cgst = netTaxable * 0.025;
-        const sgst = netTaxable * 0.025;
-        const roundOff = parseFloat(document.getElementById('calc-roundoff').value) || 0;
-        const grandTotal = netTaxable + cgst + sgst + roundOff;
-
-        document.getElementById('calc-total-meters').innerText = totalMeters.toFixed(2) + ' MTR';
-        document.getElementById('calc-taxable-val').innerText = '₹' + taxableValue.toFixed(2);
-        document.getElementById('calc-cgst').innerText = '₹' + cgst.toFixed(2);
-        document.getElementById('calc-sgst').innerText = '₹' + sgst.toFixed(2);
-        document.getElementById('calc-grand-total').innerText = '₹' + grandTotal.toFixed(2);
+    function resetBillForm() {
+        document.getElementById('bill-inv-no').value = '';
+        document.getElementById('bill-party').value = '';
+        document.getElementById('bill-gstin').value = '';
+        document.getElementById('bill-items-body').innerHTML = '';
+        addBillRow();
+        calculateTotal();
     }
 
     function saveBill() {
         const invNo = document.getElementById('bill-inv-no').value;
-        const invDate = document.getElementById('bill-date').value;
-        const supplier = document.getElementById('bill-supplier').value;
-        const grandTotal = parseFloat(document.getElementById('calc-grand-total').innerText.replace('₹','')) || 0;
+        const date = document.getElementById('bill-date').value;
+        const party = document.getElementById('bill-party').value.trim();
+        const total = parseFloat(document.getElementById('bill-grand-total').innerText) || 0;
 
-        if(!supplier || grandTotal <= 0) {
-            alert('Kripya Supplier Name aur items fill karein.');
+        if (!party || total <= 0) {
+            showToast('Party Name aur valid items fill karein');
             return;
         }
 
-        // Save Party Bank Details in Master
-        partyBankMaster[supplier] = {
-            bank: document.getElementById('sup-bank-name').value || 'N/A',
-            acc: document.getElementById('sup-acc-no').value || 'N/A',
-            ifsc: document.getElementById('sup-ifsc').value || 'N/A',
-            branch: document.getElementById('sup-branch').value || 'N/A'
-        };
-
         dbRecords.push({
-            date: invDate,
-            type: 'Bill Entry',
-            party: supplier,
-            details: `Inv: ${invNo || 'N/A'} | Case: ${document.getElementById('bill-case-no').value || '-'} | Trans: ${document.getElementById('bill-transport').value || '-'}`,
+            id: Date.now(),
+            date: date,
+            type: 'Bill',
+            party: party,
+            particulars: `Inv: ${invNo || 'N/A'}`,
             debit: 0,
-            credit: grandTotal
+            credit: total
         });
 
-        alert('Invoice successfully save ho gaya!');
+        showToast('Bill successfully save ho gaya!');
+        resetBillForm();
         switchTab('history');
     }
 
+    // --- Payment Entry with Date & Immediate Account View ---
     function savePayment() {
-        const payDate = document.getElementById('pay-date').value;
-        const party = document.getElementById('pay-party').value;
+        const date = document.getElementById('pay-date').value;
+        const party = document.getElementById('pay-party').value.trim();
         const mode = document.getElementById('pay-mode').value;
         const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
-        const accRef = document.getElementById('pay-acc-ref').value;
+        const note = document.getElementById('pay-note').value;
 
-        if(!party || amount <= 0) {
-            alert('Kripya valid party name aur amount enter karein.');
+        if (!party || amount <= 0) {
+            showToast('Party Name aur valid amount enter karein');
             return;
         }
 
         dbRecords.push({
-            date: payDate,
+            id: Date.now(),
+            date: date,
             type: 'Payment',
             party: party,
-            details: `${mode} | Ref: ${accRef || '-'}`,
+            particulars: `${mode} ${note ? '(' + note + ')' : ''}`,
             debit: amount,
             credit: 0
         });
 
-        // Open Account Details Modal
-        showAccountModal(party);
+        showToast('Payment save ho gaya!');
+        showAccountSummary(party);
         document.getElementById('pay-amount').value = '';
-        document.getElementById('pay-remarks').value = '';
+        document.getElementById('pay-note').value = '';
     }
 
-    function showAccountModal(partyName) {
-        document.getElementById('modal-party-name').innerText = partyName + ' - Account Summary';
-        
-        const bank = partyBankMaster[partyName] || { bank: 'Not Recorded', acc: '-', ifsc: '-', branch: '-' };
-        document.getElementById('modal-bank-name').innerText = bank.bank;
-        document.getElementById('modal-acc-no').innerText = bank.acc;
-        document.getElementById('modal-ifsc').innerText = bank.ifsc;
-        document.getElementById('modal-branch').innerText = bank.branch;
-
-        let billed = 0;
-        let paid = 0;
+    function showAccountSummary(partyName) {
+        document.getElementById('modal-title').innerText = `${partyName} - Account View`;
+        let billed = 0, paid = 0;
 
         dbRecords.filter(r => r.party.toLowerCase() === partyName.toLowerCase()).forEach(r => {
             billed += r.credit;
             paid += r.debit;
         });
 
-        document.getElementById('modal-total-billed').innerText = '₹' + billed.toFixed(2);
-        document.getElementById('modal-total-paid').innerText = '₹' + paid.toFixed(2);
+        document.getElementById('modal-billed').innerText = '₹' + billed.toFixed(2);
+        document.getElementById('modal-paid').innerText = '₹' + paid.toFixed(2);
         document.getElementById('modal-balance').innerText = '₹' + (billed - paid).toFixed(2);
-
         document.getElementById('accountModal').classList.remove('hidden');
     }
 
@@ -713,22 +621,28 @@
         document.getElementById('accountModal').classList.add('hidden');
     }
 
+    function updatePartyList() {
+        const datalist = document.getElementById('parties-list');
+        const parties = [...new Set(dbRecords.map(r => r.party))];
+        datalist.innerHTML = parties.map(p => `<option value="${p}">`).join('');
+    }
+
     function renderRecords() {
         const tbody = document.getElementById('records-table-body');
-        if(dbRecords.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-light);">Koi record mojud nahi hai.</td></tr>';
+        if (dbRecords.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-light);">Koi transaction record nahi hai.</td></tr>';
             return;
         }
 
         tbody.innerHTML = dbRecords.map(r => `
             <tr>
                 <td>${r.date}</td>
-                <td><strong style="color: ${r.type === 'Payment' ? 'var(--success)' : 'var(--primary-accent)'}">${r.type}</strong></td>
+                <td><strong style="color: ${r.type === 'Payment' ? 'var(--success)' : 'var(--primary)'}">${r.type}</strong></td>
                 <td><strong>${r.party}</strong></td>
-                <td>${r.details}</td>
+                <td>${r.particulars}</td>
                 <td style="color: var(--success);">${r.debit > 0 ? '₹' + r.debit.toFixed(2) : '-'}</td>
                 <td style="color: var(--primary);">${r.credit > 0 ? '₹' + r.credit.toFixed(2) : '-'}</td>
-                <td><button class="btn btn-outline btn-sm" onclick="showAccountModal('${r.party}')">View A/C</button></td>
+                <td><button class="btn btn-outline btn-sm" onclick="showAccountSummary('${r.party}')">A/C View</button></td>
             </tr>
         `).join('');
     }
